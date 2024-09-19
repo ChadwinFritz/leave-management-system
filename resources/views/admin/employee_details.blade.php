@@ -4,6 +4,12 @@
             $user = \App\Models\User::find($userId);
             $leaveInfo = \App\Models\Leave::where('empid', $user->id)->first();
             $totalLeave = $leaveInfo ? $leaveInfo->totalleave : 0;
+
+            // Calculate leave counts by leave type
+            $leaveCounts = \App\Models\Leave::where('empid', $userId)
+                ->select('leave_type_id', \DB::raw('count(*) as total'))
+                ->groupBy('leave_type_id')
+                ->pluck('total', 'leave_type_id');
         }
     @endphp
 
@@ -23,7 +29,7 @@
                     <div class="panel-body">
                         <div class="row">
                             <div class="col-md-6">
-                                <a href="{{ route('employee.edit', ['id' => $userId]) }}">
+                                <a href="{{ route('admin.employees.edit', ['id' => $user->id]) }}">
                                     <button class="btn btn-info btn-rounded btn-block"><span class="fa fa-edit"></span> Edit</button>
                                 </a>
                             </div>
@@ -36,16 +42,21 @@
                         <a href="#" class="list-group-item active"><span class="fa fa-bar-chart-o"></span> General Info</a>
                         <a href="#" class="list-group-item"><span class="fa fa-users"></span> Username <span class="badge badge-danger">{{ $user->username }}</span></a>
                         <a href="#" class="list-group-item"><span class="fa fa-users"></span> Email <span class="badge badge-danger">{{ $user->email }}</span></a>
-                        <a href="#" class="list-group-item"><span class="fa fa-users"></span> Total Leave in this Year <span class="badge badge-danger">{{ \App\Http\Controllers\AdminController::calculateTotalLeave($userId) }}</span></a>
+                        <a href="#" class="list-group-item"><span class="fa fa-users"></span> Total Leave in this Year <span class="badge badge-danger">{{ $totalLeave }}</span></a>
                         <a href="#" class="list-group-item"><span class="fa fa-folder"></span> Duty <span class="badge badge-danger">{{ $user->duty }}</span></a>
                     </div>
-                    <div class="panel-body list-group border-bottom">
-                        <a href="#" class="list-group-item active"><span class="fa fa-bar-chart-o"></span> Leave Details</a>
+                    <div class="panel-body">
+                        <a href="#" class="list-group-item active">
+                            <span class="fa fa-bar-chart-o"></span> Leave Details
+                        </a>
                         @php
                             $leaveTypes = \App\Models\LeaveType::all();
                         @endphp
                         @foreach ($leaveTypes as $leaveType)
-                            <a href="#" class="list-group-item"><span class="fa fa-users"></span> {{ $leaveType->name }} <span class="badge badge-danger">{{ \App\Http\Controllers\UserController::getEachLeaveCount($userId, $leaveType->id) }}</span></a>
+                            <a href="#" class="list-group-item">
+                                <span class="fa fa-users"></span> {{ $leaveType->name }}
+                                <span class="badge badge-danger">{{ $leaveCounts[$leaveType->id] ?? 0 }}</span>
+                            </a>
                         @endforeach
                     </div>
                 </div>
@@ -55,35 +66,6 @@
                 <div style="margin-bottom: 30px" class="panel-heading">
                     <h3 class="panel-title">Employee Leave Dates</h3>
                 </div>
-                <!-- START TIMELINE -->
-                <form class="form-horizontal" method="POST" action="{{ route('employee.leaveDates', ['id' => $userId]) }}" enctype="multipart/form-data">
-                    @csrf
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label class="col-md-5 control-label">Start Date</label>
-                                <div class="col-md-10">
-                                    <div class="input-group">
-                                        <span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span></span>
-                                        <input name="start_date" type="text" class="form-control datepicker" data-date-format="dd-mm-yyyy" value="" data-date-viewmode="years">
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label class="col-md-5 control-label">End Date</label>
-                                <div class="col-md-10">
-                                    <div class="input-group">
-                                        <span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span></span>
-                                        <input name="end_date" type="text" class="form-control datepicker" data-date-format="dd-mm-yyyy" value="" data-date-viewmode="years">
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <button style="margin-top: 20px" class="btn btn-primary">Apply</button>
-                </form>
 
                 <!-- START CONTENT FRAME BODY -->
                 @if (isset($userId) && isset($totalDays) && isset($leaveDates))

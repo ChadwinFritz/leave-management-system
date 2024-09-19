@@ -3,8 +3,10 @@
     <div class="page-content-wrap">
         <div class="row">
             <div class="col-md-12">
-                <form class="form-horizontal" method="POST" action="{{ route('employee.update') }}" enctype="multipart/form-data">
+                <form class="form-horizontal" method="POST" action="{{ route('admin.employees.update', $employee->id) }}" enctype="multipart/form-data">
                     @csrf
+                    @method('PUT') <!-- Specify the PUT method -->
+
                     <div class="panel panel-default">
                         <div class="panel-heading">
                             <h3 class="panel-title"><strong>Update</strong> Employee</h3>
@@ -44,7 +46,7 @@
                                         <div class="col-md-9">
                                             <div class="input-group">
                                                 <span class="input-group-addon"><span class="fa fa-pencil"></span></span>
-                                                <input type="text" name="name" class="form-control" value="{{ $employee->name }}" />
+                                                <input type="text" name="name" class="form-control" value="{{ old('name', $employee->name) }}" />
                                             </div>
                                             <span class="help-block">Name of employee</span>
                                         </div>
@@ -56,7 +58,7 @@
                                         <div class="col-md-9">
                                             <div class="input-group">
                                                 <span class="input-group-addon"><span class="fa fa-pencil"></span></span>
-                                                <input type="text" name="designation" class="form-control" value="{{ $employee->designation }}" />
+                                                <input type="text" name="designation" class="form-control" value="{{ old('designation', $employee->designation) }}" />
                                             </div>
                                             <span class="help-block">Designation of employee</span>
                                         </div>
@@ -68,7 +70,7 @@
                                         <div class="col-md-9">
                                             <div class="input-group">
                                                 <span class="input-group-addon"><span class="fa fa-pencil"></span></span>
-                                                <input type="text" name="duty" class="form-control" value="{{ $employee->duty }}" />
+                                                <input type="text" name="duty" class="form-control" value="{{ old('duty', $employee->duty) }}" />
                                             </div>
                                             <span class="help-block">Duty of employee</span>
                                         </div>
@@ -78,7 +80,7 @@
                                     <div class="form-group">
                                         <label class="col-md-3 control-label">Note</label>
                                         <div class="col-md-9 col-xs-12">
-                                            <textarea class="form-control" name="note" rows="5">{{ $employee->note }}</textarea>
+                                            <textarea class="form-control" name="note" rows="5">{{ old('note', $employee->note) }}</textarea>
                                             <span class="help-block">Note about employee</span>
                                         </div>
                                     </div>
@@ -100,7 +102,7 @@
                                         <div class="col-md-9">
                                             <div class="input-group">
                                                 <span class="input-group-addon">@</span>
-                                                <input type="email" class="form-control" name="email" value="{{ $employee->email }}" />
+                                                <input type="email" class="form-control" name="email" value="{{ old('email', $employee->email) }}" />
                                             </div>
                                             <span class="help-block">Employee email</span>
                                         </div>
@@ -112,7 +114,7 @@
                                         <div class="col-md-9">
                                             <div class="input-group">
                                                 <span class="input-group-addon"><span class="fa fa-pencil"></span></span>
-                                                <input type="text" class="form-control" name="username" value="{{ $employee->username }}" />
+                                                <input type="text" class="form-control" name="username" value="{{ old('username', $employee->username) }}" />
                                             </div>
                                             <span class="help-block">Username for employee login</span>
                                         </div>
@@ -127,17 +129,6 @@
                                                 <input type="password" class="form-control" name="password" />
                                             </div>
                                             <span class="help-block">Password for employee login (leave blank if not changing)</span>
-                                        </div>
-                                    </div>
-
-                                    <!-- Admin Checkbox -->
-                                    <div class="form-group">
-                                        <label class="col-md-3 control-label">Admin</label>
-                                        <div class="col-md-9">
-                                            <label class="check">
-                                                <input type="checkbox" name="is_admin" class="icheckbox" value="1" {{ $employee->is_admin ? 'checked' : '' }} />
-                                            </label>
-                                            <span class="help-block">Set employee as Admin</span>
                                         </div>
                                     </div>
 

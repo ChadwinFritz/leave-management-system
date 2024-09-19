@@ -36,6 +36,8 @@ class RegisteredAdminController extends Controller
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
             'role' => ['required', 'in:admin,user'],
+            'designation' => ['nullable', 'string', 'max:255'],
+            'duty' => ['nullable', 'string', 'max:255'],
         ]);
 
         // Create the new user
@@ -44,7 +46,9 @@ class RegisteredAdminController extends Controller
             'username' => $request->username,
             'email' => $request->email,
             'password' => Hash::make($request->password),
-            'is_admin' => $request->role === 'admin',
+            'role' => $request->role, // Include the role field
+            'designation' => $request->designation, // Include the designation field
+            'duty' => $request->duty, // Include the duty field
         ]);
 
         // Trigger the Registered event
@@ -54,7 +58,7 @@ class RegisteredAdminController extends Controller
         Auth::login($user);
 
         // Redirect to the appropriate dashboard based on the user's role
-        if ($user->is_admin) {
+        if ($user->role === 'admin') {
             return redirect()->route('admin.dashboard');
         }
 

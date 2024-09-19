@@ -39,9 +39,9 @@
                                         <td>{{ $user->duty }}</td>
                                         <td>{{ \App\Http\Controllers\AdminLeaveController::calculateTotalLeave($user->id) }}</td>
                                         <td>
-                                            <a href="{{ route('employee.details', ['id' => $user->id]) }}" class="btn btn-info">Info</a>
-                                            <a href="{{ route('employee.edit', ['id' => $user->id]) }}" class="btn btn-warning">Edit</a>
-                                            <a href="{{ route('employee.delete', ['id' => $user->id]) }}" onclick="return confirm('Do you really want to delete this user?');" class="btn btn-danger">Delete</a>
+                                            <a href="{{ route('admin.employees.details', ['id' => $user->id]) }}" class="btn btn-info">Info</a>
+                                            <a href="{{ route('admin.employees.edit', ['id' => $user->id]) }}" class="btn btn-warning">Edit</a>
+                                            <a href="{{ route('admin.employees.delete', ['id' => $user->id]) }}" onclick="return confirm('Do you really want to delete this user?');" class="btn btn-danger">Delete</a>
                                         </td>
                                     </tr>
                                 @endforeach
