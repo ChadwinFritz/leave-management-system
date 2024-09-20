@@ -19,16 +19,17 @@
                     </div>
                 @endif
 
+                <!-- Updated form to use email instead of username -->
                 <form action="{{ route('user.login') }}" class="form-horizontal" method="post">
                     @csrf
                     <div class="form-group">
                         <div class="col-md-12">
-                            <input type="text" id="username" class="form-control" name="username" placeholder="Your unique username" required/>
+                            <input type="email" id="email" class="form-control" name="email" placeholder="Your email" required />
                         </div>
                     </div>
                     <div class="form-group">
                         <div class="col-md-12">
-                            <input type="password" id="password" class="form-control" name="password" placeholder="Password" required/>
+                            <input type="password" id="password" class="form-control" name="password" placeholder="Password" required />
                         </div>
                     </div>
                     <div class="form-group">

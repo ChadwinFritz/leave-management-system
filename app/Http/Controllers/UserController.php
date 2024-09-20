@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Redirect;
 use Carbon\Carbon;
 use Carbon\CarbonPeriod;
+use App\Services\LeaveService;
 
 class UserController extends Controller
 {
@@ -84,38 +85,37 @@ class UserController extends Controller
     public function postProfileLeaveDates(Request $request)
     {
         if (Auth::check() && Auth::user()->role === 'user') {
-            $upperDates = $request->input('upper_date');
-            $lowerDates = $request->input('lower_date');
+            $upperDate = Carbon::parse($request->input('upper_date'));
+            $lowerDate = Carbon::parse($request->input('lower_date'))->addDay();
             $userId = Auth::id();
 
-            if ($upperDates && $lowerDates && $userId) {
+            if ($upperDate && $lowerDate && $userId) {
                 $totalDays = 0;
                 $actualLeaveDates = [];
 
-                $upperDate = Carbon::parse($upperDates);
-                $lowerDate = Carbon::parse($lowerDates)->addDay();
-                $period = CarbonPeriod::create($upperDate, '1 day', $lowerDate);
-
+                // Get all leave applications for the user
                 $userLeaves = LeaveApplication::where('employee_id', $userId)->get();
 
-                foreach ($userLeaves as $leave) {
-                    $startD = Carbon::parse($leave->start_date);
-                    $endD = Carbon::parse($leave->end_date)->addDay();
-                    $periodLeaveDate = CarbonPeriod::create($startD, '1 day', $endD);
+                // Create the period based on user input
+                $inputPeriod = CarbonPeriod::create($upperDate, '1 day', $lowerDate);
 
-                    foreach ($period as $date) {
-                        foreach ($periodLeaveDate as $leaveDate) {
-                            if ($date->toDateString() === $leaveDate->toDateString()) {
-                                $actualLeaveDates[] = $date->toDateString();
-                                $totalDays++;
-                            }
+                // Iterate over user leaves and find overlapping dates
+                foreach ($userLeaves as $leave) {
+                    $leavePeriod = CarbonPeriod::create($leave->start_date, '1 day', $leave->end_date);
+
+                    foreach ($inputPeriod as $date) {
+                        if ($leavePeriod->contains($date)) {
+                            $actualLeaveDates[] = $date->toDateString();
+                            $totalDays++;
                         }
                     }
                 }
 
-                return view('user.user_profile')
-                    ->with('total_days', $totalDays)
-                    ->with('leaveDates', $actualLeaveDates);
+                // Return the profile view with the leave date information
+                return view('user.user_profile', [
+                    'total_days' => $totalDays,
+                    'leaveDates' => $actualLeaveDates,
+                ]);
             }
         }
 

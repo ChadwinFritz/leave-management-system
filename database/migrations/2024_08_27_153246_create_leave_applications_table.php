@@ -16,7 +16,7 @@ class CreateLeaveApplicationsTable extends Migration
             $table->increments('id');
             $table->unsignedInteger('employee_id'); // Foreign key to the employees table
             $table->string('name')->nullable(); // Name of the employee applying for leave
-            $table->string('username'); // Username of the employee
+            $table->string('username')->nullable(); // Username of the employee
             $table->string('leave_type'); // Type of leave
             $table->date('start_date'); // Start date of the leave
             $table->date('end_date'); // End date of the leave

@@ -55,26 +55,37 @@ class UserAuthController extends Controller
     }
 
     /**
-     * Handle the registration POST request.
-     */
+    * Handle the registration POST request.
+    */
     public function postRegister(Request $request)
     {
+        // Validate the request data
         $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users',
             'password' => 'required|string|confirmed|min:8',
+            'phone' => 'nullable|string|max:15', // Example of additional field
+            'address' => 'nullable|string|max:255', // Example of additional field
         ]);
 
+        // Create the user using the validated data
         $user = User::create([
-            'name' => $request->name,
-            'email' => $request->email,
-            'password' => Hash::make($request->password),
-            'is_admin' => false, // Default role is not admin
+            'name' => $request->input('name'),
+            'email' => $request->input('email'),
+            'password' => Hash::make($request->input('password')),
+            'phone' => $request->input('phone', null), // Optional field for phone number
+            'address' => $request->input('address', null), // Optional field for address
+            'is_admin' => false, // Default role is not admin, or based on your logic
         ]);
 
+        // Log the user in after registration
         Auth::login($user);
 
-        return redirect()->route('user.dashboard'); // Redirect to user dashboard after registration
+        // Regenerate the session after logging in
+        $request->session()->regenerate();
+
+        // Redirect the user to the dashboard after registration
+        return redirect()->route('user.dashboard');
     }
 
     /**

@@ -41,7 +41,12 @@
                                         <td>
                                             <a href="{{ route('admin.employees.details', ['id' => $user->id]) }}" class="btn btn-info">Info</a>
                                             <a href="{{ route('admin.employees.edit', ['id' => $user->id]) }}" class="btn btn-warning">Edit</a>
-                                            <a href="{{ route('admin.employees.delete', ['id' => $user->id]) }}" onclick="return confirm('Do you really want to delete this user?');" class="btn btn-danger">Delete</a>
+                                            <!-- Delete action -->
+                                            <form action="{{ route('admin.employees.delete', ['id' => $user->id]) }}" method="POST" style="display:inline-block">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button type="submit" onclick="return confirm('Do you really want to delete this user?');" class="btn btn-danger">Delete</button>
+                                            </form>
                                         </td>
                                     </tr>
                                 @endforeach

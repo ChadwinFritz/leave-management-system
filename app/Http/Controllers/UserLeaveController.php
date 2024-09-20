@@ -27,22 +27,23 @@ class UserLeaveController extends Controller
         if (Auth::check() && Auth::user()->role === 'user') {
             $validator = Validator::make($request->all(), [
                 'name' => 'required',
-                'start_date' => 'required|date',
-                'end_date' => 'required|date|after_or_equal:start_date',
+                'start_date' => 'required|date_format:d-m-Y', // Change here
+                'end_date' => 'required|date_format:d-m-Y|after_or_equal:start_date', // Change here
                 'start_half' => 'nullable|integer|in:0,1',
                 'end_half' => 'nullable|integer|in:0,1',
                 'reason' => 'required',
                 'leave_type' => 'required',
-                'mobno' => 'required',
+                'contact_number' => 'required', // Ensure this matches the input name
             ]);
 
             if ($validator->fails()) {
-                return view('user.leave_request')->withErrors($validator); // Updated view name
+                return view('user.leave_request')->withErrors($validator);
             }
 
+            // Convert date format for saving
             $data = $request->all();
-            $startDate = new \DateTime($data['start_date']);
-            $endDate = new \DateTime($data['end_date']);
+            $startDate = \DateTime::createFromFormat('d-m-Y', $data['start_date']);
+            $endDate = \DateTime::createFromFormat('d-m-Y', $data['end_date']);
             $days = $startDate->diff($endDate)->days + 1;
 
             if (isset($data['start_half']) && $data['start_half'] == 1) $days -= 0.5;
@@ -51,24 +52,23 @@ class UserLeaveController extends Controller
             $leaveApplication = new LeaveApplication();
             $leaveApplication->employee_id = Auth::id();
             $leaveApplication->name = $data['name'];
-            $leaveApplication->start_date = $data['start_date'];
-            $leaveApplication->end_date = $data['end_date'];
+            $leaveApplication->start_date = $startDate->format('Y-m-d'); // Format for saving
+            $leaveApplication->end_date = $endDate->format('Y-m-d'); // Format for saving
             $leaveApplication->start_half = $data['start_half'] ?? 0;
             $leaveApplication->end_half = $data['end_half'] ?? 0;
             $leaveApplication->reason = $data['reason'];
             $leaveApplication->leave_type = $data['leave_type'];
             $leaveApplication->number_of_days = $days;
             $leaveApplication->status = 0; // Default status for new requests
-            $leaveApplication->on_date = now()->format('dd/mm/YYYY');
-            $leaveApplication->on_time = now()->format('dd/mm/yyyy');
+            $leaveApplication->on_date = now()->format('d/m/Y');
+            $leaveApplication->on_time = now()->format('H:i');
 
             $leaveApplication->save();
 
-            return view('user.leave_request') // Updated view name
-                ->with('success', 'Your application was successfully submitted!');
+            return view('user.leave_request')->with('success', 'Your application was successfully submitted!');
         }
 
-        return Redirect::route('user_login'); // Ensure redirection to user login route
+        return Redirect::route('user_login');
     }
 
     // Handle leave request submission

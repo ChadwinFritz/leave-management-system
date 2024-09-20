@@ -34,7 +34,14 @@
                                 </a>
                             </div>
                             <div class="col-md-6">
-                                <button class="btn btn-primary btn-rounded btn-block"><span class="fa fa-window-close"></span> Delete</button>
+                                <!-- Delete button wrapped in a form -->
+                                <form action="{{ route('admin.employees.delete', ['id' => $user->id]) }}" method="POST" onsubmit="return confirm('Do you really want to delete this user?');">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit" class="btn btn-danger btn-rounded btn-block">
+                                        <span class="fa fa-window-close"></span> Delete
+                                    </button>
+                                </form>
                             </div>
                         </div>
                     </div>
@@ -81,7 +88,6 @@
                     </div>
                 @endif
                 <!-- END CONTENT FRAME BODY -->
-                <!-- END TIMELINE -->
             </div>
         </div>
     </div>
@@ -93,7 +99,6 @@
     <script type="text/javascript" src="{{ asset('js/plugins/bootstrap/bootstrap.min.js') }}"></script>
     <script type="text/javascript" src="{{ asset('js/plugins/moment.min.js') }}"></script>
     <script type="text/javascript" src="{{ asset('js/plugins/fullcalendar/fullcalendar.min.js') }}"></script>
-    <!-- END THIS PAGE PLUGINS -->
     <!-- END PLUGINS -->
 
     @if (isset($userId) && isset($totalDays) && isset($leaveDates))

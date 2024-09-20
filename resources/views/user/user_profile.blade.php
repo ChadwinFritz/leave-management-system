@@ -28,7 +28,7 @@
 
                     <div class="panel-body list-group border-bottom">
                         <a href="#" class="list-group-item active"><span class="fa fa-bar-chart-o"></span> Leave Details</a>
-                        @php $leaveTypes = DB::table('leavetype')->get(); @endphp
+                        @php $leaveTypes = DB::table('leave_types')->get(); @endphp
                         @foreach($leaveTypes as $leaveType)
                             <a href="#" class="list-group-item"><span class="fa fa-users"></span> {{ $leaveType->name }} <span class="badge badge-danger">{{ \App\Http\Controllers\UserController::getEachLeaveCount($userId, $leaveType->lid) }}</span></a>
                         @endforeach
