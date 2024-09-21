@@ -123,8 +123,8 @@ class UserController extends Controller
     }
 
     // Get the leave count for the authenticated user
-    public function getEachLeaveCount($userId, $leaveTypeId)
+    public static function getEachLeaveCount($userId, $leaveTypeId)
     {
-        return $this->leaveService->getEachLeaveCount($userId, $leaveTypeId);
+        return (new LeaveService())->getEachLeaveCount($userId, $leaveTypeId);
     }
 }

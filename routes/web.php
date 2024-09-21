@@ -9,6 +9,7 @@ use App\Http\Controllers\UserLeaveController;
 use App\Http\Controllers\Auth\AdminAuthController;
 use App\Http\Controllers\Auth\UserAuthController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
+use App\Http\Controllers\EmployeeController;
 
 // Welcome Route
 Route::get('/', function () {
