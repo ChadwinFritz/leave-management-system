@@ -4,86 +4,69 @@
         $user = DB::table('users')->where('id', $userId)->first();
     @endphp
 
-    <div class="page-content-wrap">
-        <div class="row">
-            <div class="col-md-5">
-                <div class="panel panel-default">
-                    <div class="panel-body profile" style="padding-top: 100px; background: #ffffff;">
-                        <div class="profile-image">
-                            <img style="width: 180px; height: 180px;" src="{{ asset('profileimg/' . $user->image) }}" alt="{{ $user->username }}"/>
-                        </div>
-                        <div class="profile-data">
-                            <div class="profile-data-name" style="color: #002240;">{{ $user->name }}</div>
-                            <div class="profile-data-title" style="color: #002240;">{{ $user->designation }}</div>
-                        </div>
+    <div class="container mx-auto px-4 py-8">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div class="bg-white shadow-md rounded-lg">
+                <div class="flex items-center justify-center py-8">
+                    <div class="profile-image">
+                        <img class="w-48 h-48 rounded-full" src="{{ asset('profileimg/' . $user->image) }}" alt="{{ $user->username }}" />
+                    </div>
+                </div>
+                <div class="text-center pb-6">
+                    <h2 class="text-xl font-semibold text-gray-800">{{ $user->name }}</h2>
+                    <p class="text-gray-600">{{ $user->designation }}</p>
+                </div>
+
+                <div class="border-t border-gray-200">
+                    <div class="px-6 py-4">
+                        <h3 class="font-semibold text-gray-700">Activity</h3>
+                        <ul class="list-disc list-inside">
+                            <li>Username: <span class="font-bold text-red-500">{{ $user->username }}</span></li>
+                            <li>Email: <span class="font-bold text-red-500">{{ $user->email }}</span></li>
+                            <li>Total Leave in this Year: <span class="font-bold text-red-500">{{ \App\Http\Controllers\AdminController::calculateTotalLeave($userId) }}</span></li>
+                            <li>Duty: <span class="font-bold text-red-500">{{ $user->duty }}</span></li>
+                        </ul>
                     </div>
 
-                    <div class="panel-body list-group border-bottom">
-                        <a href="#" class="list-group-item active"><span class="fa fa-bar-chart-o"></span> Activity</a>
-                        <a href="#" class="list-group-item"><span class="fa fa-users"></span> Username <span class="badge badge-danger">{{ $user->username }}</span></a>
-                        <a href="#" class="list-group-item"><span class="fa fa-users"></span> Email <span class="badge badge-danger">{{ $user->email }}</span></a>
-                        <a href="#" class="list-group-item"><span class="fa fa-users"></span> Total Leave in this Year <span class="badge badge-danger">{{ \App\Http\Controllers\AdminController::calculateTotalLeave($userId) }}</span></a>
-                        <a href="#" class="list-group-item"><span class="fa fa-folder"></span> Duty <span class="badge badge-danger">{{ $user->duty }}</span></a>
-                    </div>
-
-                    <div class="panel-body list-group border-bottom">
-                        <a href="#" class="list-group-item active"><span class="fa fa-bar-chart-o"></span> Leave Details</a>
-                        @php $leaveTypes = DB::table('leavetype')->get(); @endphp
-                        @foreach($leaveTypes as $leaveType)
-                            <a href="#" class="list-group-item"><span class="fa fa-users"></span> {{ $leaveType->name }} <span class="badge badge-danger">{{ \App\Http\Controllers\UserController::getEachLeaveCount($userId, $leaveType->lid) }}</span></a>
-                        @endforeach
+                    <div class="px-6 py-4">
+                        <h3 class="font-semibold text-gray-700">Leave Details</h3>
+                        @php $leaveTypes = DB::table('leave_types')->get(); @endphp
+                        <ul class="list-disc list-inside">
+                            @foreach($leaveTypes as $leaveType)
+                                <li>{{ $leaveType->name }}: <span class="font-bold text-red-500">{{ \App\Http\Controllers\UserController::getEachLeaveCount($userId, $leaveType->id) }}</span></li>
+                            @endforeach
+                        </ul>
                     </div>
                 </div>
             </div>
 
-            <div style="margin-top: 20px;" class="col-md-5">
-                <div style="margin-bottom: 30px;" class="panel-heading">
-                    <h3 class="panel-title">Employee Leave Dates</h3>
+            <div class="bg-white shadow-md rounded-lg">
+                <div class="px-6 py-4 border-b">
+                    <h3 class="text-lg font-semibold">Employee Leave Dates</h3>
                 </div>
-
-                <!-- START TIMELINE -->
-                <form class="form-horizontal" method="post" action="{{ route('user.profile.update') }}" enctype="multipart/form-data">
+                <form class="p-6" method="post" action="{{ route('user.profile.update') }}" enctype="multipart/form-data">
                     @csrf
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label class="col-md-5 control-label">Start Date</label>
-                                <div class="col-md-10">
-                                    <div class="input-group">
-                                        <span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span></span>
-                                        <input name="start_date" type="text" class="form-control datepicker" data-date-format="dd-mm-yyyy" value="" data-date-viewmode="years">
-                                    </div>
-                                </div>
-                            </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-gray-700">Start Date</label>
+                            <input name="start_date" type="text" class="form-input mt-1 block w-full" placeholder="DD-MM-YYYY" required>
                         </div>
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label class="col-md-5 control-label">End Date</label>
-                                <div class="col-md-10">
-                                    <div class="input-group">
-                                        <span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span></span>
-                                        <input name="end_date" type="text" class="form-control datepicker" data-date-format="dd-mm-yyyy" value="" data-date-viewmode="years">
-                                    </div>
-                                </div>
-                            </div>
+                        <div>
+                            <label class="block text-gray-700">End Date</label>
+                            <input name="end_date" type="text" class="form-input mt-1 block w-full" placeholder="DD-MM-YYYY" required>
                         </div>
                     </div>
-                    <button style="margin-top: 20px;" class="btn btn-primary">Apply</button>
+                    <button type="submit" class="mt-6 bg-gray-500 text-white py-2 px-4 rounded">Apply</button>
                 </form>
 
-                <!-- START CONTENT FRAME BODY -->
+                <!-- Display Calendar if available -->
                 @if(isset($totalDays) && isset($leaveDates))
-                    <div style="margin-top: 50px;" class="content-frame-body padding-bottom-0">
-                        <div class="row">
-                            <div class="col-md-12">
-                                <div class="calendar">
-                                    <div id="calendar"></div>
-                                </div>
-                            </div>
+                    <div class="p-6">
+                        <div class="calendar">
+                            <div id="calendar"></div>
                         </div>
                     </div>
                 @endif
-                <!-- END TIMELINE -->
             </div>
         </div>
     </div>

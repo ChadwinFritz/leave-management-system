@@ -99,17 +99,29 @@ class AdminController extends Controller
     }
 
     /**
+     * Show the form for editing an employee.
+     */
+    public function showEditEmployeeForm($id)
+    {
+        // Find the user by ID
+        $user = User::findOrFail($id);
+
+        // Return the view with user data
+        return view('admin.edit_employee', ['employee' => $user]); // Ensure variable name matches the view
+    }
+
+    /**
      * Handle the request to update an employee.
      */
     public function updateEmployee(Request $request, $id)
     {
         $validator = Validator::make($request->all(), [
-            'ename' => 'required|string|max:255',
-            'eusername' => 'required|string|unique:users,username,' . $id,
-            'eemail' => 'required|email|unique:users,email,' . $id,
-            'epassword' => 'nullable|string|min:8',
-            'eadmincheck' => 'nullable|boolean',
-            'eproimg' => 'nullable|image|mimes:jpg,png,jpeg,gif|max:2048',
+            'name' => 'required|string|max:255',
+            'username' => 'required|string|unique:users,username,' . $id,
+            'email' => 'required|email|unique:users,email,' . $id,
+            'password' => 'nullable|string|min:8',
+            'admincheck' => 'nullable|boolean',
+            'proimg' => 'nullable|image|mimes:jpg,png,jpeg,gif|max:2048',
         ]);
 
         if ($validator->fails()) {
@@ -121,25 +133,25 @@ class AdminController extends Controller
         $user = User::find($id);
 
         // Check if a new profile image is uploaded
-        if ($request->hasFile('eproimg')) {
-            $imageFile = $request->file('eproimg');
+        if ($request->hasFile('proimg')) {
+            $imageFile = $request->file('proimg');
             $filename = time() . '-profile_photo.' . $imageFile->getClientOriginalExtension();
             $imageFile->move(public_path('profileimg'), $filename);
             $user->image = $filename;
         }
 
         // Update user information
-        $user->name = $request->input('ename');
-        $user->designation = $request->input('edesignation');
-        $user->duty = $request->input('eduty');
-        $user->note = $request->input('enote');
-        $user->email = $request->input('eemail');
-        $user->username = $request->input('eusername');
-        $user->role = $request->input('eadmincheck') ? 'admin' : 'user';
+        $user->name = $request->input('name');
+        $user->designation = $request->input('designation');
+        $user->duty = $request->input('duty');
+        $user->note = $request->input('note');
+        $user->email = $request->input('email');
+        $user->username = $request->input('username');
+        $user->role = $request->input('admincheck') ? 'admin' : 'user';
 
         // If the password is changed, hash and update it
-        if ($request->input('epassword')) {
-            $user->password = Hash::make($request->input('epassword'));
+        if ($request->input('password')) {
+            $user->password = Hash::make($request->input('password'));
         }
 
         $user->save();
@@ -177,18 +189,6 @@ class AdminController extends Controller
         }
     }
 
-    /**
-     * Show the form for editing an employee.
-     */
-    public function showEditEmployeeForm($id)
-    {
-        // Find the user by ID
-        $user = User::findOrFail($id);
-
-        // Return the view with user data
-        return view('admin.edit_employee', ['user' => $user]);
-    }
-
     // Get the leave count for a specific leave type for an employee
     public function getEachLeaveCount($userId)
     {
@@ -222,5 +222,79 @@ class AdminController extends Controller
         }
 
         return $leaveCounts;
+    }
+
+    /**
+     * Show the form for editing an employee and handle updates.
+     */
+    public function editEmployee(Request $request, $id = null)
+    {
+        if ($request->isMethod('get')) {
+            // Show the edit form
+            $user = User::findOrFail($id);
+            return view('admin.edit_employee', ['employee' => $user]);
+        } elseif ($request->isMethod('post')) {
+            // Handle the form submission to update an employee
+            $validator = Validator::make($request->all(), [
+                'name' => 'required|string|max:255',
+                'username' => 'required|string|unique:users,username,' . $id,
+                'email' => 'required|email|unique:users,email,' . $id,
+                'password' => 'nullable|string|min:8',
+                'admincheck' => 'nullable|boolean',
+                'proimg' => 'nullable|image|mimes:jpg,png,jpeg,gif|max:2048',
+            ]);
+
+            if ($validator->fails()) {
+                return redirect()->route('admin.employees.edit', ['id' => $id])
+                                 ->withErrors($validator)
+                                 ->withInput();
+            }
+
+            $user = User::findOrFail($id);
+
+            // Check if a new profile image is uploaded
+            if ($request->hasFile('proimg')) {
+                $imageFile = $request->file('proimg');
+                $filename = time() . '-profile_photo.' . $imageFile->getClientOriginalExtension();
+                $imageFile->move(public_path('profileimg'), $filename);
+                $user->image = $filename;
+            }
+
+            // Update user information
+            $user->name = $request->input('name');
+            $user->username = $request->input('username');
+            $user->email = $request->input('email');
+            $user->role = $request->input('admincheck') ? 'admin' : 'user';
+
+            // If the password is changed, hash and update it
+            if ($request->input('password')) {
+                $user->password = Hash::make($request->input('password'));
+            }
+
+            $user->save();
+            return redirect()->route('admin.employees.details', ['id' => $id])
+                             ->with('success', 'Employee updated successfully');
+        }
+    }
+
+    /**
+     * Calculate the total leave for a given user ID.
+     *
+     * @param int $userId
+     * @return int
+     */
+    public static function calculateTotalLeave($userId)
+    {
+        // Ensure the user ID is valid
+        if (!$userId) {
+            return 0;
+        }
+
+        // Fetch leave applications for the user for the current year
+        $totalLeave = LeaveApplication::where('employee_id', $userId)
+            ->whereYear('start_date', date('Y')) // Filter by the current year
+            ->sum('number_of_days'); // Assuming 'number_of_days' column exists in LeaveApplication
+
+        return $totalLeave;
     }
 }

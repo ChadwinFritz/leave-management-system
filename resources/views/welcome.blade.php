@@ -4,32 +4,29 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Welcome - Leave Management System</title>
-    <!-- Add your CSS links here -->
     <link rel="stylesheet" href="{{ asset('css/app.css') }}">
-    <!-- Include additional CSS if needed -->
     <link rel="stylesheet" href="{{ asset('css/custom-styles.css') }}"> <!-- Example -->
 </head>
-<body class="bg-light text-dark">
+<body class="bg-gray-100 text-gray-800">
 
-    <header class="text-center py-4">
-        <h1 class="display-4">Welcome to the Leave Management System</h1>
+    <header class="text-center py-8">
+        <h1 class="text-4xl font-bold">Welcome to the Leave Management System</h1>
     </header>
 
-    <div class="container text-center my-5">
-        <div class="btn-group">
-            <!-- Links to the login pages and registration -->
-            <a href="{{ route('admin.login') }}" class="btn btn-primary mx-2">Admin Login</a>
-            <a href="{{ route('user.login') }}" class="btn btn-primary mx-2">User Login</a>
-            <a href="{{ route('auth.register') }}" class="btn btn-secondary mx-2">Register</a>
+    <div class="container mx-auto text-center my-8">
+        <div class="btn-group flex justify-center space-x-4">
+            <a href="{{ route('admin.login') }}" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded">Admin Login</a>
+            <a href="{{ route('user.login') }}" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded">User Login</a>
+            <a href="{{ route('auth.register') }}" class="bg-gray-600 hover:bg-gray-700 text-white font-semibold py-2 px-4 rounded">Register</a>
         </div>
     </div>
 
-    <section class="container text-center my-5">
-        <h2>About the System</h2>
-        <p>This system is designed to simplify the management of employee leaves for both admins and users. Admins can manage leave requests, employees, and leave types, while users can submit leave requests and view their profile information.</p>
+    <section class="container mx-auto text-center my-10 p-6 bg-white shadow-md rounded-lg">
+        <h2 class="text-2xl font-semibold">About the System</h2>
+        <p class="mt-4">This system is designed to simplify the management of employee leaves for both admins and users. Admins can manage leave requests, employees, and leave types, while users can submit leave requests and view their profile information.</p>
     </section>
 
-    <footer class="text-center py-4 bg-dark text-white">
+    <footer class="text-center py-4 bg-gray-800 text-white">
         <p>&copy; {{ date('Y') }} Leave Management System. All rights reserved.</p>
     </footer>
     

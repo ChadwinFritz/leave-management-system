@@ -9,6 +9,7 @@ use App\Http\Controllers\UserLeaveController;
 use App\Http\Controllers\Auth\AdminAuthController;
 use App\Http\Controllers\Auth\UserAuthController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
+use App\Http\Controllers\EmployeeController;
 
 // Welcome Route
 Route::get('/', function () {
@@ -44,11 +45,16 @@ Route::middleware('auth:admin')->group(function () {
     Route::post('admin/employees/add', [AdminController::class, 'addEmployee'])
         ->name('admin.employees.store');
 
-    Route::get('admin/employees/{id}/edit', [AdminController::class, 'showEditEmployeeForm'])
-        ->name('admin.employees.edit'); // resources/views/admin/edit_employee.blade.php
+    // Show the edit form for an employee
+    Route::get('admin/employees/edit/{id}', [AdminController::class, 'showEditEmployeeForm'])
+        ->name('admin.employees.edit');
 
-    Route::put('admin/employees/{id}', [AdminController::class, 'updateEmployee'])
+    // Handle the update request for an employee
+    Route::put('admin/employees/update/{id}', [AdminController::class, 'updateEmployee'])
         ->name('admin.employees.update');
+
+    Route::get('admin/employees/{id}/edit', [AdminController::class, 'editEmployee'])
+        ->name('admin.employees.edit');
 
     Route::get('admin/employees/{id}', [AdminController::class, 'showEmployeeProfile'])
         ->name('admin.employees.details'); // resources/views/admin/employee_details.blade.php
@@ -121,6 +127,8 @@ Route::middleware('auth')->group(function () {
 
     Route::post('/user/profile/update', [UserController::class, 'updateProfile'])
         ->name('user.profile.update');
+
+    Route::get('/user/leave-count', [UserController::class, 'getEachLeaveCount']);
 
 });
 
