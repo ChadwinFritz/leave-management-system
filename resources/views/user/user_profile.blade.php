@@ -1,11 +1,12 @@
 <x-app-layout>
     @php  
-        $userId = \Illuminate\Support\Facades\Auth::user()->id;
-        $user = DB::table('users')->where('id', $userId)->first();
+        $userId = Auth::id();
+        $user = \Illuminate\Support\Facades\DB::table('users')->where('id', $userId)->first();
     @endphp
 
     <div class="container mx-auto px-4 py-8">
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <!-- User Profile Section -->
             <div class="bg-white shadow-md rounded-lg">
                 <div class="flex items-center justify-center py-8">
                     <div class="profile-image">
@@ -23,14 +24,14 @@
                         <ul class="list-disc list-inside">
                             <li>Username: <span class="font-bold text-red-500">{{ $user->username }}</span></li>
                             <li>Email: <span class="font-bold text-red-500">{{ $user->email }}</span></li>
-                            <li>Total Leave in this Year: <span class="font-bold text-red-500">{{ \App\Http\Controllers\AdminController::calculateTotalLeave($userId) }}</span></li>
+                            <li>Total Leave This Year: <span class="font-bold text-red-500">{{ \App\Http\Controllers\AdminController::calculateTotalLeave($userId) }}</span></li>
                             <li>Duty: <span class="font-bold text-red-500">{{ $user->duty }}</span></li>
                         </ul>
                     </div>
 
                     <div class="px-6 py-4">
                         <h3 class="font-semibold text-gray-700">Leave Details</h3>
-                        @php $leaveTypes = DB::table('leave_types')->get(); @endphp
+                        @php $leaveTypes = \App\Models\LeaveType::all(); @endphp
                         <ul class="list-disc list-inside">
                             @foreach($leaveTypes as $leaveType)
                                 <li>{{ $leaveType->name }}: <span class="font-bold text-red-500">{{ \App\Http\Controllers\UserController::getEachLeaveCount($userId, $leaveType->id) }}</span></li>
@@ -40,6 +41,7 @@
                 </div>
             </div>
 
+            <!-- Leave Dates Section -->
             <div class="bg-white shadow-md rounded-lg">
                 <div class="px-6 py-4 border-b">
                     <h3 class="text-lg font-semibold">Employee Leave Dates</h3>
@@ -49,11 +51,11 @@
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
                             <label class="block text-gray-700">Start Date</label>
-                            <input name="start_date" type="text" class="form-input mt-1 block w-full" placeholder="DD-MM-YYYY" required>
+                            <input name="start_date" type="date" class="form-input mt-1 block w-full" required>
                         </div>
                         <div>
                             <label class="block text-gray-700">End Date</label>
-                            <input name="end_date" type="text" class="form-input mt-1 block w-full" placeholder="DD-MM-YYYY" required>
+                            <input name="end_date" type="date" class="form-input mt-1 block w-full" required>
                         </div>
                     </div>
                     <button type="submit" class="mt-6 bg-gray-500 text-white py-2 px-4 rounded">Apply</button>

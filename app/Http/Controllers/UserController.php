@@ -20,7 +20,11 @@ class UserController extends Controller
         $this->leaveService = $leaveService;
     }
     
-    // Display the user dashboard
+    /**
+     * Display the user dashboard.
+     *
+     * @return \Illuminate\View\View|\Illuminate\Http\RedirectResponse
+     */
     public function getDashUser()
     {
         if (Auth::check() && Auth::user()->role === 'user') {
@@ -30,7 +34,11 @@ class UserController extends Controller
         return Redirect::route('user.login');
     }
 
-    // Display the user profile page
+    /**
+     * Display the user profile page.
+     *
+     * @return \Illuminate\View\View|\Illuminate\Http\RedirectResponse
+     */
     public function getProfile()
     {
         if (Auth::check() && Auth::user()->role === 'user') {
@@ -40,7 +48,12 @@ class UserController extends Controller
         return Redirect::route('user.login');
     }
 
-    // Update user profile information
+    /**
+     * Update user profile information.
+     *
+     * @param \Illuminate\Http\Request $request
+     * @return \Illuminate\Http\RedirectResponse
+     */
     public function updateProfile(Request $request)
     {
         if (Auth::check() && Auth::user()->role === 'user') {
@@ -81,7 +94,12 @@ class UserController extends Controller
         return Redirect::route('user.login');
     }
 
-    // Handle profile leave dates (specific logic for leave management)
+    /**
+     * Handle profile leave dates (specific logic for leave management).
+     *
+     * @param \Illuminate\Http\Request $request
+     * @return \Illuminate\Http\RedirectResponse|\Illuminate\View\View
+     */
     public function postProfileLeaveDates(Request $request)
     {
         if (Auth::check() && Auth::user()->role === 'user') {
@@ -122,7 +140,13 @@ class UserController extends Controller
         return Redirect::route('user.login');
     }
 
-    // Get the leave count for the authenticated user
+    /**
+     * Get the leave count for the authenticated user.
+     *
+     * @param int $userId
+     * @param int $leaveTypeId
+     * @return int
+     */
     public static function getEachLeaveCount($userId, $leaveTypeId)
     {
         return (new LeaveService())->getEachLeaveCount($userId, $leaveTypeId);

@@ -7,7 +7,7 @@
                 <!-- Form Heading -->
                 <div class="flex justify-between items-center">
                     <h3 class="text-xl font-semibold text-gray-800">Add Employee</h3>
-                    <a href="#" class="text-gray-500 hover:text-red-600 transition duration-300">
+                    <a href="{{ route('admin.employees.index') }}" class="text-gray-500 hover:text-red-600 transition duration-300">
                         <i class="fa fa-times"></i>
                     </a>
                 </div>

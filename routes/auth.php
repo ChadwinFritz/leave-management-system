@@ -6,15 +6,15 @@ use App\Http\Controllers\Auth\ConfirmablePasswordController;
 use App\Http\Controllers\Auth\NewPasswordController;
 use App\Http\Controllers\Auth\PasswordController;
 use App\Http\Controllers\Auth\PasswordResetLinkController;
-use App\Http\Controllers\Auth\RegisteredAdminController;
+use App\Http\Controllers\Auth\RegisteredController;
 use App\Http\Controllers\Auth\UserAuthController;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware('guest')->group(function () {
     // Registration Routes
-    Route::get('register', [RegisteredAdminController::class, 'create'])
+    Route::get('register', [RegisteredController::class, 'create'])
                 ->name('register');
-    Route::post('register', [RegisteredAdminController::class, 'store']);
+    Route::post('register', [RegisteredController::class, 'store']);
 
     // Login Routes
     Route::get('login', [AuthenticatedSessionController::class, 'create'])

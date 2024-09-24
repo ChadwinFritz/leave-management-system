@@ -19,7 +19,7 @@ class UserAuthController extends Controller
         if (Auth::check()) {
             return redirect()->route('user.dashboard'); // Redirect to user dashboard if already logged in
         } else {
-            return view('user.user_login'); // Make sure this view exists
+            return view('user.user_login'); // Ensure this view exists
         }
     }
 
@@ -28,6 +28,7 @@ class UserAuthController extends Controller
      */
     public function loginPost(Request $request)
     {
+        // Validate login form input
         $credentials = $request->only('email', 'password');
 
         $validator = Validator::make($credentials, [
@@ -35,10 +36,12 @@ class UserAuthController extends Controller
             'password' => 'required',
         ]);
 
+        // If validation fails, return back with errors
         if ($validator->fails()) {
             return redirect()->route('user.login')->withErrors($validator);
         }
 
+        // Attempt to authenticate
         if (Auth::attempt($credentials)) {
             return redirect()->route('user.dashboard'); // Redirect to user dashboard after login
         }
@@ -51,40 +54,42 @@ class UserAuthController extends Controller
      */
     public function getRegisterPage()
     {
-        return view('auth.register'); // Make sure this view exists
+        return view('auth.register'); // Ensure this view exists
     }
 
     /**
-    * Handle the registration POST request.
-    */
-    public function postRegister(Request $request)
+     * Handle the registration POST request.
+     */
+    public function register(Request $request)
     {
-        // Validate the request data
-        $request->validate([
+        // Validate registration form input, including email
+        $validator = Validator::make($request->all(), [
             'name' => 'required|string|max:255',
+            'username' => 'required|string|max:255|unique:users',
             'email' => 'required|string|email|max:255|unique:users',
-            'password' => 'required|string|confirmed|min:8',
-            'phone' => 'nullable|string|max:15', // Example of additional field
-            'address' => 'nullable|string|max:255', // Example of additional field
+            'password' => 'required|string|min:8|confirmed',
+            'role' => 'required|in:user',  // Only allow user role
         ]);
 
-        // Create the user using the validated data
+        // If validation fails, redirect back with errors
+        if ($validator->fails()) {
+            return redirect()->route('auth.register')->withErrors($validator)->withInput();
+        }
+
+        // Create a new user
         $user = User::create([
             'name' => $request->input('name'),
-            'email' => $request->input('email'),
+            'username' => $request->input('username'),
+            'email' => $request->input('email'),  // Email field added
             'password' => Hash::make($request->input('password')),
-            'phone' => $request->input('phone', null), // Optional field for phone number
-            'address' => $request->input('address', null), // Optional field for address
-            'is_admin' => false, // Default role is not admin, or based on your logic
+            'role' => 'user',  // Set role to user
+            'is_admin' => false,  // Ensure proper role is set
         ]);
 
-        // Log the user in after registration
+        // Log the user in
         Auth::login($user);
 
-        // Regenerate the session after logging in
-        $request->session()->regenerate();
-
-        // Redirect the user to the dashboard after registration
+        // Redirect to user dashboard
         return redirect()->route('user.dashboard');
     }
 

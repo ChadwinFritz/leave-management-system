@@ -80,6 +80,8 @@
                                 <h4 class="text-xl">Total Days: {{ $totalDays }}</h4>
                             </div>
                         </div>
+                    @else
+                        <p class="text-gray-600">No leave dates available for this employee.</p>
                     @endif
                 </div>
             </div>

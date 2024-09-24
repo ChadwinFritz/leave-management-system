@@ -19,7 +19,7 @@
                             <li>{{ $error }}</li>
                         @endforeach
                     </ul>
-                    <button type="button" class="absolute top-0 bottom-0 right-0 px-4 py-3">
+                    <button type="button" class="absolute top-0 bottom-0 right-0 px-4 py-3" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
@@ -29,7 +29,7 @@
             <form action="{{ route('user.login') }}" method="post">
                 @csrf
                 <div class="mb-4">
-                    <input type="email" id="email" class="form-control w-full border border-gray-300 rounded-lg p-2" name="email" placeholder="Your email" required />
+                    <input type="email" id="email" class="form-control w-full border border-gray-300 rounded-lg p-2" name="email" placeholder="Your email" value="{{ old('email') }}" required />
                 </div>
                 <div class="mb-4">
                     <input type="password" id="password" class="form-control w-full border border-gray-300 rounded-lg p-2" name="password" placeholder="Password" required />
@@ -39,7 +39,7 @@
                         <a href="#" class="text-blue-500 hover:underline">Forgot Password?</a>
                     </div>
                     <div>
-                        <button class="bg-gray-500 text-white rounded-lg px-4 py-2 hover:bg-blue-600">Log In</button>
+                        <button type="submit" class="bg-gray-500 text-white rounded-lg px-4 py-2 hover:bg-blue-600">Log In</button>
                     </div>
                 </div>
             </form>

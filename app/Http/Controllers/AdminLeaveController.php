@@ -5,9 +5,8 @@ namespace App\Http\Controllers;
 use App\Models\Leave;
 use App\Models\LeaveApplication;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Validator;
 
 class AdminLeaveController extends Controller
 {
@@ -16,9 +15,13 @@ class AdminLeaveController extends Controller
      */
     public function showLeaveRequests()
     {
-        // Fetch leave requests from the Leave model
-        $leaveRequests = Leave::all(); // Assuming Leave model stores leave applications
-        return view('admin.list_leave_requests', compact('leaveRequests'));
+        if (Auth::check() && Auth::user()->isAdmin()) {
+            // Fetch leave requests from LeaveApplication model
+            $leaveRequests = LeaveApplication::all();
+            return view('admin.list_leave_requests', compact('leaveRequests'));
+        }
+
+        return redirect()->route('admin.login');
     }
 
     /**
@@ -26,32 +29,36 @@ class AdminLeaveController extends Controller
      */
     public function handleLeaveAction(Request $request)
     {
-        $rejectionReason = $request->input('rejreason');
+        $validator = Validator::make($request->all(), [
+            'id' => 'required|integer|exists:leave_applications,id',
+            'act' => 'required|in:1,2', // 1: approve, 2: reject
+            'rejreason' => 'nullable|string|max:255',
+        ]);
+
+        if ($validator->fails()) {
+            return redirect()->route('admin.leave_requests')
+                             ->withErrors($validator)
+                             ->withInput();
+        }
+
         $applicationId = $request->input('id');
         $action = $request->input('act');
 
-        if ($applicationId && $action) {
-            $leave = Leave::where('application_id', $applicationId)->first();
-
-            if ($leave) {
-                if ($action == 1) {
-                    // Approve leave
-                    $leave->status = 1;
-                    $leave->save();
-                    DB::table('leaveapply')->where('id', $applicationId)
-                        ->update(['status' => 1, 'rejreason' => ""]);
-                } elseif ($action == 2) {
-                    // Reject leave
-                    $leave->status = 2; // Update status to rejected instead of deleting
-                    $leave->rejection_reason = $rejectionReason; // Save rejection reason
-                    $leave->save();
-                    DB::table('leaveapply')->where('id', $applicationId)
-                        ->update(['status' => 2, 'rejreason' => $rejectionReason]);
-                }
+        $leave = LeaveApplication::find($applicationId);
+        if ($leave) {
+            if ($action == 1) {
+                // Approve leave
+                $leave->status = 'approved';
+            } elseif ($action == 2) {
+                // Reject leave
+                $leave->status = 'rejected';
+                $leave->rejection_reason = $request->input('rejreason');
             }
+            $leave->save();
+            return redirect()->route('admin.leave_requests')->with('success', 'Leave action processed successfully.');
         }
 
-        return redirect()->route('admin.leave_requests')->with('success', 'Leave action processed successfully.');
+        return redirect()->route('admin.leave_requests')->with('error', 'Leave request not found.');
     }
 
     /**
@@ -59,45 +66,43 @@ class AdminLeaveController extends Controller
      */
     public function showEmployeeLeaveDetails(Request $request)
     {
+        $validator = Validator::make($request->all(), [
+            'upper_date' => 'required|date',
+            'lower_date' => 'required|date|after_or_equal:upper_date',
+            'id' => 'required|integer|exists:users,id',
+        ]);
+
+        if ($validator->fails()) {
+            return redirect()->route('admin.leave_requests')
+                             ->withErrors($validator);
+        }
+
         $startDate = $request->input('upper_date');
         $endDate = $request->input('lower_date');
         $employeeId = $request->input('id');
 
-        if ($startDate && $endDate && $employeeId) {
-            $totalDays = 0;
-            $actualLeaveDates = [];
-            $userLeaves = Leave::where('user_id', $employeeId)->get(); // Changed 'empid' to 'user_id'
-            $upperDate = new \DateTime($startDate);
-            $lowerDate = new \DateTime($endDate);
-            $lowerDate->modify('+1 day');
-            $datePeriod = new \DatePeriod($upperDate, new \DateInterval('P1D'), $lowerDate);
+        $totalDays = 0;
+        $actualLeaveDates = [];
+        $userLeaves = LeaveApplication::where('employee_id', $employeeId)->get();
 
-            foreach ($userLeaves as $userLeave) {
-                $leaveStartDate = new \DateTime($userLeave->startdate);
-                $leaveEndDate = new \DateTime($userLeave->enddate);
-                $leaveEndDate->modify('+1 day');
-                $leavePeriod = new \DatePeriod($leaveStartDate, new \DateInterval('P1D'), $leaveEndDate);
+        foreach ($userLeaves as $userLeave) {
+            $leaveStartDate = new \DateTime($userLeave->start_date);
+            $leaveEndDate = new \DateTime($userLeave->end_date);
+            $leaveEndDate->modify('+1 day');
 
-                foreach ($datePeriod as $date) {
-                    foreach ($leavePeriod as $leaveDate) {
-                        if ($date->format('Y-m-d') == $leaveDate->format('Y-m-d')) {
-                            $totalDays++;
-                            $actualLeaveDates[] = $date->format('Y-m-d');
-                        }
-                    }
+            $dateRange = new \DatePeriod($leaveStartDate, new \DateInterval('P1D'), $leaveEndDate);
+            foreach ($dateRange as $leaveDate) {
+                if ($leaveDate >= new \DateTime($startDate) && $leaveDate <= new \DateTime($endDate)) {
+                    $totalDays++;
+                    $actualLeaveDates[] = $leaveDate->format('Y-m-d');
                 }
             }
-
-            $viewData = [
-                'leaveDetails' => $actualLeaveDates,
-                'totalDays' => $totalDays
-            ];
-
-            return view('admin.view_leave', $viewData);
         }
 
-        // Handle cases where required data is missing
-        return redirect()->route('admin.leave_requests')->withErrors('Invalid data provided.');
+        return view('admin.view_leave', [
+            'leaveDetails' => $actualLeaveDates,
+            'totalDays' => $totalDays
+        ]);
     }
 
     /**
@@ -108,52 +113,6 @@ class AdminLeaveController extends Controller
      */
     public static function calculateTotalLeave($userId)
     {
-        // Calculate total leave days for the user from the Leave model
-        return Leave::where('user_id', $userId)->sum('days'); // Assuming 'days' is the number of leave days
-    }
-
-    /**
-     * Show the list of leave requests.
-     */
-    public function listLeaveRequests()
-    {
-        if (Auth::check() && Auth::user()->isAdmin()) {
-            // Fetch all leave requests
-            $leaveRequests = LeaveApplication::all();  // Adjust the query as needed
-
-            return view('admin.list_leave_request', ['leaveRequests' => $leaveRequests]);
-        } else {
-            return redirect()->route('admin.login');
-        }
-    }
-
-    /**
-     * Update the leave request.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
-     * @param  string  $action
-     * @return \Illuminate\Http\Response
-     */
-    public function updateLeave(Request $request, $id, $action)
-    {
-        $leave = LeaveApplication::find($id);
-
-        if (!$leave) {
-            return redirect()->route('admin.leave.requests')
-                             ->with('error', 'Leave request not found');
-        }
-
-        // Perform the action (e.g., reject the leave request)
-        if ($action === 'reject') {
-            $leave->status = 'rejected';
-        } else {
-            // Handle other actions if needed
-        }
-
-        $leave->save();
-
-        return redirect()->route('admin.leave.requests')
-                         ->with('success', 'Leave request updated successfully');
+        return LeaveApplication::where('employee_id', $userId)->sum('number_of_days');
     }
 }

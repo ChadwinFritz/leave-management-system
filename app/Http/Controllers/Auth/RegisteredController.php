@@ -12,7 +12,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules;
 use Illuminate\View\View;
 
-class RegisteredAdminController extends Controller
+class RegisteredController extends Controller
 {
     /**
      * Display the registration view.
@@ -35,9 +35,7 @@ class RegisteredAdminController extends Controller
             'username' => ['required', 'string', 'max:255', 'unique:users'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
-            'role' => ['required', 'in:admin,user'],
-            'designation' => ['nullable', 'string', 'max:255'],
-            'duty' => ['nullable', 'string', 'max:255'],
+            'role' => ['required', 'in:admin,user'], // Allow both roles
         ]);
 
         // Create the new user
@@ -46,9 +44,8 @@ class RegisteredAdminController extends Controller
             'username' => $request->username,
             'email' => $request->email,
             'password' => Hash::make($request->password),
-            'role' => $request->role, // Include the role field
-            'designation' => $request->designation, // Include the designation field
-            'duty' => $request->duty, // Include the duty field
+            'role' => $request->role,
+            'is_admin' => $request->role === 'admin', // Set is_admin based on role
         ]);
 
         // Trigger the Registered event
@@ -58,7 +55,7 @@ class RegisteredAdminController extends Controller
         Auth::login($user);
 
         // Redirect to the appropriate dashboard based on the user's role
-        if ($user->role === 'admin') {
+        if ($user->is_admin) {
             return redirect()->route('admin.dashboard');
         }
 

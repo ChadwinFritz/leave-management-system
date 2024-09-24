@@ -10,7 +10,7 @@
                             <li>{{ $error }}</li>
                         @endforeach
                     </ul>
-                    <button type="button" class="absolute top-0 bottom-0 right-0 px-4 py-3">
+                    <button type="button" class="absolute top-0 bottom-0 right-0 px-4 py-3" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
@@ -24,7 +24,7 @@
             <form action="{{ route('admin.login') }}" method="post">
                 @csrf
                 <div class="mb-4">
-                    <input type="text" name="username" class="form-control w-full border border-gray-300 rounded-lg p-2" placeholder="Username" required/>
+                    <input type="text" name="username" class="form-control w-full border border-gray-300 rounded-lg p-2" placeholder="Username" value="{{ old('username') }}" required/>
                 </div>
                 <div class="mb-4">
                     <input type="password" name="password" class="form-control w-full border border-gray-300 rounded-lg p-2" placeholder="Password" required/>

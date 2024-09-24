@@ -25,12 +25,13 @@
                     </thead>
                     <tbody>
                         @foreach($leaveRequests as $leaveRequest)
-                        @php
-                            $status = $leaveRequest->status;
-                        @endphp
                         <tr id="trow_{{ $leaveRequest->id }}">
                             <td class="border text-center">{{ $leaveRequest->id }}</td>
-                            <td class="border"><strong><a href="{{ route('employee.details', ['id' => $leaveRequest->empid]) }}" class="text-blue-500 hover:underline">{{ $leaveRequest->name }}</a></strong></td>
+                            <td class="border">
+                                <strong>
+                                    <a href="{{ route('employee.details', ['id' => $leaveRequest->empid]) }}" class="text-blue-500 hover:underline">{{ $leaveRequest->name }}</a>
+                                </strong>
+                            </td>
                             <td class="border">{{ $leaveRequest->number }}</td>
                             <td class="border">{{ \App\Models\LeaveType::find($leaveRequest->leave_type)->name ?? 'N/A' }}</td>
                             <td class="border">{{ $leaveRequest->reason }}</td>
@@ -40,17 +41,17 @@
                             <td class="border">{{ \App\Http\Controllers\AdminController::calculateTotalLeave($leaveRequest->empid) }}</td>
                             <td class="border">{{ $leaveRequest->created_at->format('Y-m-d H:i:s') }}</td>
                             <td class="border">
-                                @if($status == 0)
+                                @if($leaveRequest->status == 0)
                                     <span class="bg-yellow-200 text-yellow-800 px-2 py-1 rounded">Pending</span>
-                                @elseif($status == 1)
+                                @elseif($leaveRequest->status == 1)
                                     <span class="bg-green-200 text-green-800 px-2 py-1 rounded">Approved</span>
-                                @elseif($status == 2)
+                                @elseif($leaveRequest->status == 2)
                                     <span class="bg-red-200 text-red-800 px-2 py-1 rounded">Rejected</span>
                                 @endif
                             </td>
                             <td class="border">{{ $leaveRequest->rejection_reason }}</td>
                             <td class="border">
-                                @if($status != 1)
+                                @if($leaveRequest->status != 1)
                                     <a href="{{ route('leave.update', ['id' => $leaveRequest->id, 'action' => 'approve']) }}" class="bg-green-500 text-white px-4 py-1 rounded hover:bg-green-600">Approve</a>
                                 @endif
                                 <a href="#" class="mb-control btn btn-danger" data-box="#mb-reject" onclick="setRejectFormAction({{ $leaveRequest->id }})" class="bg-red-500 text-white px-4 py-1 rounded hover:bg-red-600">Reject</a>
@@ -73,7 +74,7 @@
                 <div class="mb-content">
                     <p>Please specify a reason for the rejection.</p>
                     <div class="form-group">
-                        <textarea class="form-control border rounded w-full" name="rejection_reason" rows="5"></textarea>
+                        <textarea class="form-control border rounded w-full" name="rejection_reason" rows="5" required></textarea>
                         <input type="hidden" name="action" value="reject"/>
                         <input type="hidden" name="additional_info" value="2"/>
                     </div>

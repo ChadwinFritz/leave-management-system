@@ -1,7 +1,9 @@
 <x-app-layout>
     <!-- PAGE TITLE -->
     <div class="page-title py-4">
-        <h2 class="text-2xl font-semibold text-gray-800"><span class="fa fa-arrow-circle-o-left"></span> Employees</h2>
+        <h2 class="text-2xl font-semibold text-gray-800">
+            <span class="fa fa-arrow-circle-o-left"></span> Employees
+        </h2>
     </div>
     <!-- END PAGE TITLE -->
 
@@ -9,11 +11,14 @@
     <div class="page-content-wrap py-8">
         <div class="max-w-7xl mx-auto">
             <div class="bg-white shadow-md rounded-lg p-6">
-                
+
                 <!-- Panel Header -->
                 <div class="flex justify-between items-center mb-6">
                     <h3 class="text-xl font-semibold text-gray-800">Employee List</h3>
                     <div class="space-x-4">
+                        <a href="{{ route('admin.employees.add') }}" class="text-gray-500 hover:text-blue-600 transition duration-300">
+                            <i class="fa fa-plus"></i> Add Employee
+                        </a>
                         <a href="#" class="text-gray-500 hover:text-gray-800 transition duration-300">
                             <i class="fa fa-angle-down"></i>
                         </a>

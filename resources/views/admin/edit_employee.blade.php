@@ -26,21 +26,21 @@
                     <!-- Name Input -->
                     <div class="mb-4">
                         <label class="block text-gray-700">Name</label>
-                        <input type="text" name="name" class="mt-1 block w-full border-gray-300 rounded-md" value="{{ old('name', $employee->name) }}" />
+                        <input type="text" name="name" class="mt-1 block w-full border-gray-300 rounded-md" value="{{ old('name', $employee->name) }}" required />
                         <span class="text-sm text-gray-500">Name of employee</span>
                     </div>
 
                     <!-- Designation Input -->
                     <div class="mb-4">
                         <label class="block text-gray-700">Designation</label>
-                        <input type="text" name="designation" class="mt-1 block w-full border-gray-300 rounded-md" value="{{ old('designation', $employee->designation) }}" />
+                        <input type="text" name="designation" class="mt-1 block w-full border-gray-300 rounded-md" value="{{ old('designation', $employee->designation) }}" required />
                         <span class="text-sm text-gray-500">Designation of employee</span>
                     </div>
 
                     <!-- Duty Input -->
                     <div class="mb-4">
                         <label class="block text-gray-700">Duty</label>
-                        <input type="text" name="duty" class="mt-1 block w-full border-gray-300 rounded-md" value="{{ old('duty', $employee->duty) }}" />
+                        <input type="text" name="duty" class="mt-1 block w-full border-gray-300 rounded-md" value="{{ old('duty', $employee->duty) }}" required />
                         <span class="text-sm text-gray-500">Duty of employee</span>
                     </div>
 
@@ -63,14 +63,14 @@
                     <!-- Email Input -->
                     <div class="mb-4">
                         <label class="block text-gray-700">Email</label>
-                        <input type="email" class="mt-1 block w-full border-gray-300 rounded-md" name="email" value="{{ old('email', $employee->email) }}" />
+                        <input type="email" class="mt-1 block w-full border-gray-300 rounded-md" name="email" value="{{ old('email', $employee->email) }}" required />
                         <span class="text-sm text-gray-500">Employee email</span>
                     </div>
 
                     <!-- Username Input -->
                     <div class="mb-4">
                         <label class="block text-gray-700">Username</label>
-                        <input type="text" class="mt-1 block w-full border-gray-300 rounded-md" name="username" value="{{ old('username', $employee->username) }}" />
+                        <input type="text" class="mt-1 block w-full border-gray-300 rounded-md" name="username" value="{{ old('username', $employee->username) }}" required />
                         <span class="text-sm text-gray-500">Username for employee login</span>
                     </div>
 
@@ -78,7 +78,7 @@
                     <div class="mb-4">
                         <label class="block text-gray-700">Password</label>
                         <input type="password" class="mt-1 block w-full border-gray-300 rounded-md" name="password" />
-                        <span class="text-sm text-gray-500">Password for employee login (leave blank if not changing)</span>
+                        <span class="text-sm text-gray-500">Leave blank if not changing</span>
                     </div>
 
                     <!-- Hidden Inputs -->
@@ -87,8 +87,8 @@
             </div>
 
             <div class="flex justify-between mt-6">
-                <a href="{{ route('admin.dashboard') }}" class="btn btn-default">Cancel</a>
-                <button type="submit" class="bg-gray-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 transition">Update Employee</button>
+                <a href="{{ route('admin.dashboard') }}" class="bg-gray-300 text-gray-700 px-4 py-2 rounded-md hover:bg-gray-400 transition">Cancel</a>
+                <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 transition">Update Employee</button>
             </div>
         </form>
     </div>

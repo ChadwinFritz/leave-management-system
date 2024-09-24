@@ -11,17 +11,26 @@ use Illuminate\Support\Facades\DB;
 
 class UserLeaveController extends Controller
 {
-    // Display the leave request page
+    /**
+     * Display the leave request page.
+     *
+     * @return \Illuminate\View\View|\Illuminate\Http\RedirectResponse
+     */
     public function getLeaveReq()
     {
         if (Auth::check() && Auth::user()->role === 'user') {
             return view('user.leave_request'); // Updated view name
         }
 
-        return Redirect::route('user_login'); // Ensure redirection to user login route
+        return Redirect::route('user.login'); // Ensure redirection to user login route
     }
 
-    // Handle leave request post
+    /**
+     * Handle leave request post.
+     *
+     * @param \Illuminate\Http\Request $request
+     * @return \Illuminate\View\View|\Illuminate\Http\RedirectResponse
+     */
     public function postLeaveReq(Request $request)
     {
         if (Auth::check() && Auth::user()->role === 'user') {
@@ -71,10 +80,15 @@ class UserLeaveController extends Controller
             return view('user.leave_request')->with('success', 'Your application was successfully submitted!');
         }
 
-        return Redirect::route('user_login');
+        return Redirect::route('user.login');
     }
 
-    // Handle leave request submission
+    /**
+     * Handle leave request submission.
+     *
+     * @param \Illuminate\Http\Request $request
+     * @return \Illuminate\Http\RedirectResponse
+     */
     public function submitLeaveRequest(Request $request)
     {
         // Ensure the user is authenticated and has the user role
@@ -112,7 +126,12 @@ class UserLeaveController extends Controller
         return redirect()->route('user.login');
     }
 
-    // Get the leave count for a specific leave type
+    /**
+     * Get the leave count for a specific leave type.
+     *
+     * @param int $userId
+     * @return array
+     */
     public static function getEachLeaveCount($userId)
     {
         $leaveCounts = [];

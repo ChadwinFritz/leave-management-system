@@ -9,7 +9,6 @@ use App\Http\Controllers\UserLeaveController;
 use App\Http\Controllers\Auth\AdminAuthController;
 use App\Http\Controllers\Auth\UserAuthController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
-use App\Http\Controllers\EmployeeController;
 
 // Welcome Route
 Route::get('/', function () {
@@ -25,25 +24,23 @@ Route::middleware('guest')->group(function () {
 });
 
 // Admin Routes
-Route::middleware('guest:admin')->group(function () {
+Route::middleware('auth:admin')->group(function () {
     Route::get('admin/login', [AdminAuthController::class, 'showLoginForm'])
-        ->name('admin.login'); // resources/views/admin/admin_login.blade.php
+        ->name('admin.login'); // This is the route that was missing
 
     Route::post('admin/login', [AdminAuthController::class, 'login']);
-});
-
-Route::middleware('auth:admin')->group(function () {
+    
     Route::get('admin/dashboard', [AdminController::class, 'dashboard'])
         ->name('admin.dashboard'); // resources/views/admin/admin_dashboard.blade.php
 
     Route::get('admin/employees', [AdminController::class, 'listEmployees'])
         ->name('admin.employees'); // Assuming a view exists for employee listing
 
-    Route::get('admin/employees/add', [AdminController::class, 'showAddEmployeeForm'])
-        ->name('admin.employees.add');
-
     Route::post('admin/employees/add', [AdminController::class, 'addEmployee'])
         ->name('admin.employees.store');
+
+    Route::get('admin/employees/add', [AdminController::class, 'showAddEmployeeForm'])
+        ->name('admin.employees.add');    
 
     // Show the edit form for an employee
     Route::get('admin/employees/edit/{id}', [AdminController::class, 'showEditEmployeeForm'])
@@ -53,23 +50,14 @@ Route::middleware('auth:admin')->group(function () {
     Route::put('admin/employees/update/{id}', [AdminController::class, 'updateEmployee'])
         ->name('admin.employees.update');
 
-    Route::get('admin/employees/{id}/edit', [AdminController::class, 'editEmployee'])
-        ->name('admin.employees.edit');
-
     Route::get('admin/employees/{id}', [AdminController::class, 'showEmployeeProfile'])
         ->name('admin.employees.details'); // resources/views/admin/employee_details.blade.php
 
     Route::delete('admin/employees/{id}', [AdminController::class, 'deleteEmployee'])
         ->name('admin.employees.delete');
 
-    Route::get('admin/employees', [AdminController::class, 'listEmployees'])
-        ->name('admin.employees');
-
     Route::get('admin/leave/requests', [AdminLeaveController::class, 'listLeaveRequests'])
         ->name('admin.leave.requests');    
-
-    Route::get('admin/leave/requests', [AdminLeaveController::class, 'listLeaveRequests'])
-        ->name('admin.leave.requests'); // resources/views/admin/list_leave_request.blade.php
 
     Route::get('admin/leave/types', [AdminLeaveTypeController::class, 'listLeaveTypes'])
         ->name('admin.leave.types'); // Assuming a view exists for leave types

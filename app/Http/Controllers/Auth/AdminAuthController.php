@@ -75,7 +75,7 @@ class AdminAuthController extends Controller
             'username' => 'required|string|max:255|unique:users',
             'email' => 'required|string|email|max:255|unique:users',
             'password' => 'required|string|min:8|confirmed',
-            'role' => 'required|in:user,admin',
+            'role' => 'required|in:admin',  // Only allow admin role
         ]);
 
         // If validation fails, redirect back with errors
@@ -83,27 +83,20 @@ class AdminAuthController extends Controller
             return redirect()->route('auth.register')->withErrors($validator)->withInput();
         }
 
-        // Check if the role is admin
-        $isAdmin = $request->input('role') === 'admin';
-
         // Create a new user
         $user = User::create([
             'name' => $request->input('name'),
             'username' => $request->input('username'),
             'email' => $request->input('email'),  // Email field added
             'password' => bcrypt($request->input('password')),
-            'role' => $request->input('role'),  // Ensure role is set correctly
-            'is_admin' => $isAdmin,  // Ensure proper role is set
+            'role' => 'admin',  // Set role to admin
+            'is_admin' => true,  // Ensure proper role is set
         ]);
 
         // Log the user in using the default guard (web for users or admin)
         Auth::login($user);
 
         // Redirect to appropriate dashboard based on role
-        if ($isAdmin) {
-            return redirect()->route('admin.dashboard');
-        } else {
-            return redirect()->route('user.dashboard');
-        }
+        return redirect()->route('admin.dashboard');
     }
 }

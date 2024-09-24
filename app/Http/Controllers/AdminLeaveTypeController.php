@@ -2,112 +2,150 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\LeaveType;
+use App\Models\Leave;
+use App\Models\LeaveApplication;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Redirect;
-use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
-class AdminLeaveTypeController extends Controller
+class AdminLeaveController extends Controller
 {
     /**
-     * Display the list of leave types.
+     * Show the list of leave requests.
      */
-    public function index()
+    public function showLeaveRequests()
     {
-        $leaveTypes = LeaveType::all();
-        return view('admin.leave_types.index', ['leaveTypes' => $leaveTypes]);
+        if (Auth::check() && Auth::user()->role === 'admin') {
+            // Fetch leave requests from the LeaveApplication model
+            $leaveRequests = LeaveApplication::with('employee')->get(); // Use eager loading to fetch employee data
+            return view('admin.list_leave_requests', compact('leaveRequests'));
+        } else {
+            return redirect()->route('admin.login');
+        }
     }
 
     /**
-     * Show the form to add a new leave type.
+     * Handle leave request actions (approve/reject).
      */
-    public function create()
+    public function handleLeaveAction(Request $request)
     {
-        return view('admin.leave_types.create');
-    }
-
-    /**
-     * Store a new leave type.
-     */
-    public function store(Request $request)
-    {
-        $validator = Validator::make($request->all(), [
-            'type' => 'required|string|max:255',
-            'leavedays' => 'required|integer|min:0',
-            'description' => 'required|string',
+        $request->validate([
+            'rejreason' => 'nullable|string|max:255',
+            'id' => 'required|exists:leave_applications,id',
+            'act' => 'required|in:1,2', // 1 for approve, 2 for reject
         ]);
 
-        if ($validator->fails()) {
-            return redirect()->route('admin.leave_types.create')
-                             ->withErrors($validator)
-                             ->withInput();
+        $leave = LeaveApplication::find($request->input('id'));
+
+        if ($leave) {
+            if ($request->input('act') == 1) {
+                // Approve leave
+                $leave->status = 'approved';
+            } elseif ($request->input('act') == 2) {
+                // Reject leave
+                $leave->status = 'rejected';
+                $leave->rejection_reason = $request->input('rejreason');
+            }
+            $leave->save();
         }
 
-        LeaveType::create([
-            'type' => $request->input('type'),
-            'leavedays' => $request->input('leavedays'),
-            'description' => $request->input('description'),
-        ]);
-
-        return redirect()->route('admin.leave_types.index');
+        return redirect()->route('admin.leave_requests')->with('success', 'Leave action processed successfully.');
     }
 
     /**
-     * Show the form to edit an existing leave type.
+     * Display employee leave details within a specific date range.
      */
-    public function edit($id)
+    public function showEmployeeLeaveDetails(Request $request)
     {
-        $leaveType = LeaveType::findOrFail($id);
-        return view('admin.leave_types.edit', ['leaveType' => $leaveType]);
-    }
-
-    /**
-     * Update an existing leave type.
-     */
-    public function update(Request $request, $id)
-    {
-        $validator = Validator::make($request->all(), [
-            'type' => 'required|string|max:255',
-            'leavedays' => 'required|integer|min:0',
-            'description' => 'required|string',
+        $request->validate([
+            'upper_date' => 'required|date',
+            'lower_date' => 'required|date|after_or_equal:upper_date',
+            'id' => 'required|exists:users,id', // Assuming 'users' table holds employee IDs
         ]);
 
-        if ($validator->fails()) {
-            return redirect()->route('admin.leave_types.edit', ['id' => $id])
-                             ->withErrors($validator)
-                             ->withInput();
+        $startDate = $request->input('upper_date');
+        $endDate = $request->input('lower_date');
+        $employeeId = $request->input('id');
+
+        $userLeaves = LeaveApplication::where('employee_id', $employeeId)
+            ->whereBetween('start_date', [$startDate, $endDate])
+            ->orWhereBetween('end_date', [$startDate, $endDate])
+            ->get();
+
+        $totalDays = 0;
+        $actualLeaveDates = [];
+
+        foreach ($userLeaves as $userLeave) {
+            $leaveStartDate = new \DateTime($userLeave->start_date);
+            $leaveEndDate = new \DateTime($userLeave->end_date);
+            $leaveEndDate->modify('+1 day'); // Include end date in the period
+            $dateRange = new \DatePeriod($leaveStartDate, new \DateInterval('P1D'), $leaveEndDate);
+
+            foreach ($dateRange as $date) {
+                $totalDays++;
+                $actualLeaveDates[] = $date->format('Y-m-d');
+            }
         }
 
-        $leaveType = LeaveType::findOrFail($id);
-        $leaveType->update([
-            'type' => $request->input('type'),
-            'leavedays' => $request->input('leavedays'),
-            'description' => $request->input('description'),
+        return view('admin.view_leave', [
+            'leaveDetails' => $actualLeaveDates,
+            'totalDays' => $totalDays
         ]);
-
-        return redirect()->route('admin.leave_types.index');
     }
 
     /**
-     * Delete a leave type.
-     */
-    public function destroy($id)
-    {
-        LeaveType::destroy($id);
-        return redirect()->route('admin.leave_types.index');
-    }
-
-    /**
-     * Display a listing of leave types.
+     * Calculate the total leave days for a user.
      *
+     * @param int $userId
+     * @return int
+     */
+    public static function calculateTotalLeave($userId)
+    {
+        return LeaveApplication::where('employee_id', $userId)
+            ->sum('number_of_days'); // Assuming 'number_of_days' column exists
+    }
+
+    /**
+     * Show the list of leave requests.
+     */
+    public function listLeaveRequests()
+    {
+        if (Auth::check() && Auth::user()->role === 'admin') {
+            // Fetch all leave requests
+            $leaveRequests = LeaveApplication::with('employee')->get(); // Eager load employee data
+            return view('admin.list_leave_request', ['leaveRequests' => $leaveRequests]);
+        } else {
+            return redirect()->route('admin.login');
+        }
+    }
+
+    /**
+     * Update the leave request.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  int  $id
+     * @param  string  $action
      * @return \Illuminate\Http\Response
      */
-    public function listLeaveTypes()
+    public function updateLeave(Request $request, $id, $action)
     {
-        // Fetch all leave types from the database
-        $leaveTypes = LeaveType::all();
+        $leave = LeaveApplication::find($id);
 
-        // Return the view with leave types data
-        return view('admin.leave_types', ['leaveTypes' => $leaveTypes]);
+        if (!$leave) {
+            return redirect()->route('admin.leave.requests')
+                             ->with('error', 'Leave request not found');
+        }
+
+        // Perform the action (e.g., reject the leave request)
+        if ($action === 'reject') {
+            $leave->status = 'rejected';
+        } elseif ($action === 'approve') {
+            $leave->status = 'approved';
+        }
+
+        $leave->save();
+
+        return redirect()->route('admin.leave.requests')
+                         ->with('success', 'Leave request updated successfully');
     }
 }
