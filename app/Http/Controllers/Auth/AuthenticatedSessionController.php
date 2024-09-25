@@ -67,10 +67,19 @@ class AuthenticatedSessionController extends Controller
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 
-        // Clear all cookies related to the session
-        $cookieNames = ['remember_web', 'remember_admin']; // Adjust if your application uses different cookie names
-        foreach ($cookieNames as $cookieName) {
+        // Remove the 'remember me' cookie if it exists for the respective guard
+        $cookieName = $guard === 'admin' ? 'remember_admin' : 'remember_web';
+        if ($request->cookies->has($cookieName)) {
             $request->cookies->set($cookieName, null, -1);
+        }
+
+        // Check for any other related cookies that should be cleared (if necessary)
+        // For example, clearing session-specific cookies
+        $additionalCookies = ['some_other_cookie_name']; // Add more as required
+        foreach ($additionalCookies as $cookie) {
+            if ($request->cookies->has($cookie)) {
+                $request->cookies->set($cookie, null, -1);
+            }
         }
 
         // Redirect to the appropriate login page after logout
