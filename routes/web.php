@@ -1,127 +1,99 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\AdminController;
-use App\Http\Controllers\AdminLeaveController;
-use App\Http\Controllers\AdminLeaveTypeController;
-use App\Http\Controllers\UserController;
-use App\Http\Controllers\UserLeaveController;
 use App\Http\Controllers\Auth\AdminAuthController;
-use App\Http\Controllers\Auth\UserAuthController;
-use App\Http\Controllers\Auth\AuthenticatedSessionController;
+use App\Http\Controllers\Auth\EmployeeAuthController;
+use App\Http\Controllers\AdminController;
+use App\Http\Controllers\EmployeeController;
 
 // Welcome Route
 Route::get('/', function () {
-    return view('welcome'); // resources/views/welcome.blade.php
+    return view('welcome');
 })->name('welcome');
 
-// Registration Routes (Admin Only)
-Route::middleware('guest')->group(function () {
-    Route::get('register', [AdminAuthController::class, 'showRegistrationForm'])
-        ->name('auth.register'); // resources/views/auth/register.blade.php
+// Admin Authentication Routes
+Route::get('admin/login', [AdminAuthController::class, 'showLoginForm'])->name('admin.login');
+Route::post('admin/login', [AdminAuthController::class, 'login']);
+Route::post('admin/logout', [AdminAuthController::class, 'logout'])->name('admin.logout');
 
-    Route::post('register', [AdminAuthController::class, 'register']);
-});
+// Employee Authentication Routes
+Route::get('employee/login', [EmployeeAuthController::class, 'showLoginForm'])->name('employee.login');
+Route::post('employee/login', [EmployeeAuthController::class, 'login']);
+Route::post('employee/logout', [EmployeeAuthController::class, 'logout'])->name('employee.logout');
 
-// Admin Routes
-Route::middleware('auth:admin')->group(function () {
-    Route::get('admin/login', [AdminAuthController::class, 'showLoginForm'])
-        ->name('admin.login'); // This is the route that was missing
+// Employee Index (Login View)
+Route::get('employees', function () {
+    return view('employees.index');
+})->name('employee.index');
 
-    Route::post('admin/login', [AdminAuthController::class, 'login']);
-    
-    Route::get('admin/dashboard', [AdminController::class, 'dashboard'])
-        ->name('admin.dashboard'); // resources/views/admin/admin_dashboard.blade.php
+// Admin Dashboard
+Route::get('admin/dashboard', [AdminController::class, 'dashboard'])->name('admin.dashboard');
 
-    Route::get('admin/employees', [AdminController::class, 'listEmployees'])
-        ->name('admin.employees'); // Assuming a view exists for employee listing
+// Admin Management
+Route::get('admin/manage-admin', [AdminController::class, 'manageAdmin'])->name('admin.manage-admin');
+Route::get('admin/add-admin', [AdminController::class, 'showAddAdminForm'])->name('admin.add-admin');
+Route::post('admin/add-admin', [AdminController::class, 'addAdmin']);
 
-    Route::post('admin/employees/add', [AdminController::class, 'addEmployee'])
-        ->name('admin.employees.store');
+// Department Management
+Route::get('admin/department', [AdminController::class, 'viewDepartments'])->name('admin.department');
+Route::get('admin/add-department', [AdminController::class, 'showAddDepartmentForm'])->name('admin.add-department');
+Route::post('admin/add-department', [AdminController::class, 'addDepartment']);
+Route::get('admin/edit-department/{id}', [AdminController::class, 'editDepartment'])->name('admin.edit-department');
+Route::post('admin/update-department/{id}', [AdminController::class, 'updateDepartment']);
 
-    Route::get('admin/employees/add', [AdminController::class, 'showAddEmployeeForm'])
-        ->name('admin.employees.add');    
+// Employee Management
+Route::get('admin/employees', [AdminController::class, 'viewEmployees'])->name('admin.employees');
+Route::get('admin/add-employee', [AdminController::class, 'showAddEmployeeForm'])->name('admin.add-employee');
+Route::post('admin/add-employee', [AdminController::class, 'addEmployee']);
+Route::get('admin/update-employee/{id}', [AdminController::class, 'editEmployee'])->name('admin.update-employee');
+Route::post('admin/update-employee/{id}', [AdminController::class, 'updateEmployee']);
 
-    // Show the edit form for an employee
-    Route::get('admin/employees/edit/{id}', [AdminController::class, 'showEditEmployeeForm'])
-        ->name('admin.employees.edit');
+// Leave Type Management
+Route::get('admin/leave-section', [AdminController::class, 'viewLeaveTypes'])->name('admin.leave-section');
+Route::get('admin/add-leavetype', [AdminController::class, 'showAddLeaveTypeForm'])->name('admin.add-leavetype');
+Route::post('admin/add-leavetype', [AdminController::class, 'addLeaveType']);
+Route::get('admin/edit-leavetype/{id}', [AdminController::class, 'editLeaveType'])->name('admin.edit-leavetype');
+Route::post('admin/update-leavetype/{id}', [AdminController::class, 'updateLeaveType']);
 
-    // Handle the update request for an employee
-    Route::put('admin/employees/update/{id}', [AdminController::class, 'updateEmployee'])
-        ->name('admin.employees.update');
+// Leave History and Status
+Route::get('admin/leave-history', [AdminController::class, 'leaveHistory'])->name('admin.leave-history');
+Route::get('admin/pending-history', [AdminController::class, 'pendingHistory'])->name('admin.pending-history');
+Route::get('admin/approved-history', [AdminController::class, 'approvedHistory'])->name('admin.approved-history');
+Route::get('admin/declined-history', [AdminController::class, 'declinedHistory'])->name('admin.declined-history');
+Route::get('admin/employeeLeave-details/{leaveId}', [AdminController::class, 'leaveDetails'])->name('admin.employeeLeave-details');
 
-    Route::get('admin/employees/{id}', [AdminController::class, 'showEmployeeProfile'])
-        ->name('admin.employees.details'); // resources/views/admin/employee_details.blade.php
+// Employee Profile and Leave
+Route::get('employee/profile', [EmployeeController::class, 'viewProfile'])->name('employee.my-profile');
+Route::get('employee/leave', [EmployeeController::class, 'viewLeaveForm'])->name('employee.leave');
+Route::post('employee/apply-leave', [EmployeeController::class, 'applyLeave'])->name('employee.apply-leave');
+Route::get('employee/leave-history', [EmployeeController::class, 'leaveHistory'])->name('employee.leave-history');
+Route::get('employee/change-password', [EmployeeController::class, 'showChangePasswordForm'])->name('employee.change-password');
+Route::post('employee/change-password', [EmployeeController::class, 'changePassword']);
 
-    Route::delete('admin/employees/{id}', [AdminController::class, 'deleteEmployee'])
-        ->name('admin.employees.delete');
+// Includes Views (components like notification, sidebar, profile, footer)
+Route::get('admin/includes/admin-notification', function () {
+    return view('admin.includes.admin-notification');
+})->name('admin.includes.notification');
 
-    Route::get('admin/leave/requests', [AdminLeaveController::class, 'listLeaveRequests'])
-        ->name('admin.leave.requests');    
+Route::get('admin/includes/admin-sidebar', function () {
+    return view('admin.includes.admin-sidebar');
+})->name('admin.includes.sidebar');
 
-    Route::get('admin/leave/types', [AdminLeaveTypeController::class, 'listLeaveTypes'])
-        ->name('admin.leave.types'); // Assuming a view exists for leave types
+Route::get('includes/employee-profile-section', function () {
+    return view('includes.employee-profile-section');
+})->name('includes.employee-profile-section');
 
-    Route::put('leave/update/{id}/{action}', [AdminLeaveController::class, 'updateLeave'])
-        ->name('leave.update');
+Route::get('includes/footer', function () {
+    return view('includes.footer');
+})->name('includes.footer');
 
-    Route::post('employee/{id}/leave-dates', [UserController::class, 'handleLeaveDates'])
-        ->name('employee.leaveDates');
-});
+// Admin Index
+Route::get('admin', function () {
+    return view('admin.index');
+})->name('admin.index');
 
-// User Routes
-Route::middleware('guest')->group(function () {
-    Route::get('user/login', [UserAuthController::class, 'getLoginPage'])
-        ->name('user.login'); // resources/views/user/user_login.blade.php
+// Logout Routes
+Route::post('admin/logout', [AdminAuthController::class, 'logout'])->name('admin.logout');
+Route::post('employee/logout', [EmployeeAuthController::class, 'logout'])->name('employee.logout');
 
-    Route::post('user/login', [UserAuthController::class, 'loginPost'])
-        ->name('user.login.post'); // Updated to avoid name conflict with GET route
-
-    Route::get('user/register', [UserAuthController::class, 'getRegisterPage'])
-        ->name('user.register'); // resources/views/auth/register.blade.php (shared registration view)
-
-    Route::post('user/register', [UserAuthController::class, 'postRegister'])
-        ->name('user.register.post'); // Added for clarity and consistency
-});
-
-// Add default login route to handle login view dynamically for admin or user
-Route::middleware('guest')->group(function () {
-    Route::get('login', [AuthenticatedSessionController::class, 'create'])
-        ->name('login'); // This is the default login route (will detect whether user or admin)
-
-    Route::post('login', [AuthenticatedSessionController::class, 'store']);
-});
-
-Route::middleware('auth')->group(function () {
-    // User Dashboard
-    Route::get('user/dashboard', [UserController::class, 'getDashUser'])
-        ->name('user.dashboard'); // View: resources/views/user/user_dashboard.blade.php
-
-    // Show Leave Request Form
-    Route::get('user/leave/request', [UserLeaveController::class, 'showLeaveRequestForm'])
-        ->name('user.leave.request'); // View: resources/views/user/leave_request.blade.php
-
-    // Submit Leave Request
-    Route::post('user/leave/request', [UserLeaveController::class, 'submitLeaveRequest'])
-        ->name('user.leave.request.submit');
-
-    // User Profile
-    Route::get('user/profile', [UserController::class, 'getProfile'])
-        ->name('user.profile'); // View: resources/views/user/user_profile.blade.php
-
-    // Post Profile Leave Dates
-    Route::post('user/profile/leave-dates', [UserController::class, 'postProfileLeaveDates'])
-        ->name('user.profile.leave-dates');
-
-    Route::post('/user/profile/update', [UserController::class, 'updateProfile'])
-        ->name('user.profile.update');
-
-    Route::get('/user/leave-count', [UserController::class, 'getEachLeaveCount']);
-
-});
-
-// Auth Logout Route
-Route::post('logout', function () {
-    auth()->logout();
-    return redirect()->route('welcome');
-})->name('logout');
+require base_path('routes/auth.php');

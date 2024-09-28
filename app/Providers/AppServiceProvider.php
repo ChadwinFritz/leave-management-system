@@ -14,10 +14,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        // Bind the LeaveService class to the service container
-        $this->app->singleton(LeaveService::class, function ($app) {
-            return new LeaveService();
-        });
+        // 
     }
 
     /**
@@ -25,17 +22,6 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        View::composer('admin.employee_details', function ($view) {
-            $userId = Auth::id();  // Or pass it in another way if necessary
-            $leaveService = app(LeaveService::class);
-            $leaveTypes = \App\Models\LeaveType::all();
-            $leaveCounts = [];
-    
-            foreach ($leaveTypes as $leaveType) {
-                $leaveCounts[$leaveType->id] = $leaveService->getEachLeaveCount($userId, $leaveType->id);
-            }
-    
-            $view->with('leaveCounts', $leaveCounts);
-        });
+        //
     }
 }

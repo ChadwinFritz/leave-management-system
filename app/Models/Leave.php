@@ -3,38 +3,30 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Leave extends Model
 {
-    use SoftDeletes;
+    // Specify the table name
+    protected $table = 'tblleaves';
 
-    protected $table = 'leaves';
-
+    // Specify fillable fields for mass assignment
     protected $fillable = [
-        'employee_id',
-        'username',
-        'application_id',
-        'total_leave',
-        'start_date',
-        'end_date',
-        'start_half',
-        'end_half',
-        'on_date',
-        'on_time',
-        'leave_type',
+        'LeaveType', 'ToDate', 'FromDate', 'Description', 'PostingDate', 
+        'AdminRemark', 'AdminRemarkDate', 'Status', 'IsRead', 'empid'
     ];
 
-    protected $casts = [
-        'start_date' => 'date',
-        'end_date' => 'date',
-        'on_date' => 'date',
-        'on_time' => 'datetime',
-    ];
+    // Disable timestamps if not used in the table
+    public $timestamps = false;
 
+    // Define the relationship: A leave belongs to an employee
     public function employee()
     {
-        return $this->belongsTo(User::class, 'employee_id');
+        return $this->belongsTo(Employee::class, 'empid', 'id');
     }
 
+    // Define the relationship: A leave belongs to a leave type
+    public function leaveType()
+    {
+        return $this->belongsTo(LeaveType::class, 'LeaveType', 'LeaveType');
+    }
 }

@@ -1,64 +1,26 @@
 <?php
 
-use App\Http\Controllers\Auth\AdminAuthController;
-use App\Http\Controllers\Auth\AuthenticatedSessionController;
-use App\Http\Controllers\Auth\ConfirmablePasswordController;
-use App\Http\Controllers\Auth\NewPasswordController;
-use App\Http\Controllers\Auth\PasswordController;
-use App\Http\Controllers\Auth\PasswordResetLinkController;
-use App\Http\Controllers\Auth\RegisteredController;
-use App\Http\Controllers\Auth\UserAuthController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Auth\AdminAuthController;
+use App\Http\Controllers\Auth\EmployeeAuthController;
 
-Route::middleware('guest')->group(function () {
-    // Registration Routes
-    Route::get('register', [RegisteredController::class, 'create'])
-                ->name('register');
-    Route::post('register', [RegisteredController::class, 'store']);
+// Admin Authentication Routes
+Route::prefix('admin')->group(function () {
+    Route::get('login', [AdminAuthController::class, 'showLoginForm'])->name('admin.login');
+    Route::post('login', [AdminAuthController::class, 'login']);
+    Route::post('logout', [AdminAuthController::class, 'logout'])->name('admin.logout');
 
-    // Login Routes
-    Route::get('login', [AuthenticatedSessionController::class, 'create'])
-                ->name('login');
-    Route::post('login', [AuthenticatedSessionController::class, 'store']);
-
-    // Password Reset Routes
-    Route::get('forgot-password', [PasswordResetLinkController::class, 'create'])
-                ->name('password.request');
-    Route::post('forgot-password', [PasswordResetLinkController::class, 'store'])
-                ->name('password.email');
-    Route::get('reset-password/{token}', [NewPasswordController::class, 'create'])
-                ->name('password.reset');
-    Route::post('reset-password', [NewPasswordController::class, 'store'])
-                ->name('password.store');
+    // Admin Registration Routes
+    Route::get('register', function () {
+        return view('auth.register'); // Ensure this points to your register view
+    })->name('admin.register.view');
+    
+    Route::post('register', [AdminAuthController::class, 'register'])->name('admin.register');
 });
 
-Route::middleware('auth')->group(function () {
-    // Password Confirmation Routes
-    Route::get('confirm-password', [ConfirmablePasswordController::class, 'show'])
-                ->name('password.confirm');
-    Route::post('confirm-password', [ConfirmablePasswordController::class, 'store']);
-
-    // Password Update Route
-    Route::put('password', [PasswordController::class, 'update'])
-                ->name('password.update');
-
-    // Logout Route
-    Route::post('logout', [AuthenticatedSessionController::class, 'destroy'])
-                ->name('logout');
-});
-
-// Additional routes for Admin Authentication
-Route::middleware('admin')->group(function () {
-    // Admin Login Routes
-    Route::get('admin/login', [AdminAuthController::class, 'create'])
-                ->name('admin.login');
-    Route::post('admin/login', [AdminAuthController::class, 'store']);
-});
-
-// Additional routes for User Authentication
-Route::middleware('user')->group(function () {
-    // User Login Routes
-    Route::get('user/login', [UserAuthController::class, 'create'])
-                ->name('user.login');
-    Route::post('user/login', [UserAuthController::class, 'store']);
+// Employee Authentication Routes
+Route::prefix('employee')->group(function () {
+    Route::get('login', [EmployeeAuthController::class, 'showLoginForm'])->name('employee.login');
+    Route::post('login', [EmployeeAuthController::class, 'login']);
+    Route::post('logout', [EmployeeAuthController::class, 'logout'])->name('employee.logout');
 });

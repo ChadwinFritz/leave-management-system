@@ -1,74 +1,93 @@
 <x-guest-layout>
-    <form method="POST" action="{{ route('auth.register') }}">
-        @csrf
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="x-ua-compatible" content="ie=edge">
+        <title>Admin Registration - Leave Management System</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="stylesheet" href="{{ asset('assets/css/bootstrap.min.css') }}">
+        <link rel="stylesheet" href="{{ asset('assets/css/font-awesome.min.css') }}">
+        <link rel="stylesheet" href="{{ asset('assets/css/themify-icons.css') }}">
+        <link rel="stylesheet" href="{{ asset('assets/css/metisMenu.css') }}">
+        <link rel="stylesheet" href="{{ asset('assets/css/owl.carousel.min.css') }}">
+        <link rel="stylesheet" href="{{ asset('assets/css/slicknav.min.css') }}">
+        <link rel="stylesheet" href="{{ asset('assets/css/typography.css') }}">
+        <link rel="stylesheet" href="{{ asset('assets/css/default-css.css') }}">
+        <link rel="stylesheet" href="{{ asset('assets/css/styles.css') }}">
+        <link rel="stylesheet" href="{{ asset('assets/css/responsive.css') }}">
+        <script src="{{ asset('assets/js/vendor/modernizr-2.8.3.min.js') }}"></script>
+    </head>
 
-        <!-- Name -->
-        <div>
-            <x-input-label for="name" :value="__('Name')" />
-            <x-text-input id="name" class="block mt-1 w-full" type="text" name="name" :value="old('name')" required autofocus autocomplete="name" />
-            <x-input-error :messages="$errors->get('name')" class="mt-2" />
+    <body>
+        <div id="preloader">
+            <div class="loader"></div>
         </div>
 
-        <!-- Username -->
-        <div class="mt-4">
-            <x-input-label for="username" :value="__('Username')" />
-            <x-text-input id="username" class="block mt-1 w-full" type="text" name="username" :value="old('username')" required autocomplete="username" />
-            <x-input-error :messages="$errors->get('username')" class="mt-2" />
+        <div class="login-area login-s2">
+            <div class="container">
+                <div class="login-box ptb--100">
+                    <form method="POST" action="{{ route('admin.register') }}">
+                        @csrf
+                        <div class="login-form-head">
+                            <h4>Admin Registration</h4>
+                            <p>Create a new admin account</p>
+                        </div>
+                        <div class="login-form-body">
+                            <div class="form-gp">
+                                <label for="username">Username</label>
+                                <input type="text" id="username" name="UserName" required autofocus>
+                                <i class="ti-user"></i>
+                                @error('UserName')
+                                    <div class="text-danger">{{ $message }}</div>
+                                @enderror
+                            </div>
+
+                            <div class="form-gp">
+                                <label for="fullname">Full Name</label>
+                                <input type="text" id="fullname" name="fullname" required>
+                                <i class="ti-user"></i>
+                                @error('fullname')
+                                    <div class="text-danger">{{ $message }}</div>
+                                @enderror
+                            </div>
+
+                            <div class="form-gp">
+                                <label for="email">Email Address</label>
+                                <input type="email" id="email" name="email" required>
+                                <i class="ti-email"></i>
+                                @error('email')
+                                    <div class="text-danger">{{ $message }}</div>
+                                @enderror
+                            </div>
+
+                            <div class="form-gp">
+                                <label for="password">Password</label>
+                                <input type="password" id="password" name="Password" required>
+                                <i class="ti-lock"></i>
+                                @error('Password')
+                                    <div class="text-danger">{{ $message }}</div>
+                                @enderror
+                            </div>
+
+                            <div class="submit-btn-area">
+                                <button id="form_submit" type="submit">Register <i class="ti-arrow-right"></i></button>
+                            </div>
+                            <div class="form-footer text-center mt-5">
+                                <p class="text-muted"><a href="{{ route('admin.login') }}">Already have an account? Login here</a></p>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
         </div>
 
-        <!-- Email Address -->
-        <div class="mt-4">
-            <x-input-label for="email" :value="__('Email')" />
-            <x-text-input id="email" class="block mt-1 w-full" type="email" name="email" :value="old('email')" required autocomplete="email" />
-            <x-input-error :messages="$errors->get('email')" class="mt-2" />
-        </div>
-
-        <!-- Designation -->
-        <div class="mt-4">
-            <x-input-label for="designation" :value="__('Designation')" />
-            <x-text-input id="designation" class="block mt-1 w-full" type="text" name="designation" :value="old('designation')" autocomplete="designation" />
-            <x-input-error :messages="$errors->get('designation')" class="mt-2" />
-        </div>
-
-        <!-- Duty -->
-        <div class="mt-4">
-            <x-input-label for="duty" :value="__('Duty')" />
-            <x-text-input id="duty" class="block mt-1 w-full" type="text" name="duty" :value="old('duty')" autocomplete="duty" />
-            <x-input-error :messages="$errors->get('duty')" class="mt-2" />
-        </div>
-
-        <!-- Password -->
-        <div class="mt-4">
-            <x-input-label for="password" :value="__('Password')" />
-            <x-text-input id="password" class="block mt-1 w-full" type="password" name="password" required autocomplete="new-password" />
-            <x-input-error :messages="$errors->get('password')" class="mt-2" />
-        </div>
-
-        <!-- Confirm Password -->
-        <div class="mt-4">
-            <x-input-label for="password_confirmation" :value="__('Confirm Password')" />
-            <x-text-input id="password_confirmation" class="block mt-1 w-full" type="password" name="password_confirmation" required autocomplete="new-password" />
-            <x-input-error :messages="$errors->get('password_confirmation')" class="mt-2" />
-        </div>
-
-        <!-- Role Selection -->
-        <div class="mt-4">
-            <x-input-label for="role" :value="__('Role')" />
-            <select id="role" name="role" class="block mt-1 w-full form-select">
-                <option value="user" {{ old('role') === 'user' ? 'selected' : '' }}>User</option>
-                <option value="admin" {{ old('role') === 'admin' ? 'selected' : '' }}>Admin</option>
-            </select>
-            <x-input-error :messages="$errors->get('role')" class="mt-2" />
-        </div>
-
-        <div class="flex items-center justify-end mt-4">
-            <a class="underline text-sm text-gray-600 hover:text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500" href="{{ route('user.login') }}">
-                {{ __('Already registered?') }}
-            </a>
-
-            <x-primary-button class="ms-4">
-                {{ __('Register') }}
-            </x-primary-button>
-        </div>
-    </form>
+        <script src="{{ asset('assets/js/vendor/jquery-2.2.4.min.js') }}"></script>
+        <script src="{{ asset('assets/js/popper.min.js') }}"></script>
+        <script src="{{ asset('assets/js/bootstrap.min.js') }}"></script>
+        <script src="{{ asset('assets/js/owl.carousel.min.js') }}"></script>
+        <script src="{{ asset('assets/js/metisMenu.min.js') }}"></script>
+        <script src="{{ asset('assets/js/jquery.slimscroll.min.js') }}"></script>
+        <script src="{{ asset('assets/js/jquery.slicknav.min.js') }}"></script>
+        <script src="{{ asset('assets/js/plugins.js') }}"></script>
+        <script src="{{ asset('assets/js/scripts.js') }}"></script>
+    </body>
 </x-guest-layout>

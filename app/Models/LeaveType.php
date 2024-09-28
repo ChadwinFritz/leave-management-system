@@ -3,23 +3,21 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\SoftDeletes;
 
 class LeaveType extends Model
 {
-    use SoftDeletes;
+    // Specify the table name
+    protected $table = 'tblleavetype';
 
-    protected $table = 'leave_types';
+    // Specify fillable fields for mass assignment
+    protected $fillable = ['LeaveType', 'Description'];
 
-    protected $fillable = [
-        'code',
-        'name',
-        'has_limit',
-        'limit',
-    ];
+    // Disable timestamps if not used in the table
+    public $timestamps = false;
 
-    protected $casts = [
-        'has_limit' => 'boolean',
-    ];
-
+    // Define the relationship: A leave type has many leaves
+    public function leaves()
+    {
+        return $this->hasMany(Leave::class, 'LeaveType', 'LeaveType');
+    }
 }

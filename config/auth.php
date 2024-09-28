@@ -14,8 +14,8 @@ return [
     */
 
     'defaults' => [
-        'guard' => env('AUTH_GUARD', 'web'),
-        'passwords' => env('AUTH_PASSWORD_BROKER', 'users'),
+        'guard' => env('AUTH_GUARD', 'admin'), // Changed default to 'admin'
+        'passwords' => env('AUTH_PASSWORD_BROKER', 'admins'), // Changed default to 'admins'
     ],
 
     /*
@@ -24,60 +24,50 @@ return [
     |--------------------------------------------------------------------------
     |
     | Next, you may define every authentication guard for your application.
-    | Of course, a great default configuration has been defined for you
-    | which utilizes session storage plus the Eloquent user provider.
-    |
-    | All authentication guards have a user provider, which defines how the
-    | users are actually retrieved out of your database or other storage
-    | system used by the application. Typically, Eloquent is utilized.
+    | A great default configuration has been defined for you which utilizes
+    | session storage plus the Eloquent user provider.
     |
     | Supported: "session"
     |
     */
 
     'guards' => [
-        'web' => [
-            'driver' => 'session',
-            'provider' => 'users',
-        ],
-
         'admin' => [ // Admin guard
             'driver' => 'session',
             'provider' => 'admins',
         ],
 
-        'user' => [ // User guard
+        'employee' => [ // Employee guard (if separate)
             'driver' => 'session',
-            'provider' => 'users',
+            'provider' => 'employees', // Adjusted for employee provider
         ],
     ],
 
     /*
     |--------------------------------------------------------------------------
-    | User Providers
+    | Admin Providers
     |--------------------------------------------------------------------------
     |
-    | All authentication guards have a user provider, which defines how the
-    | users are actually retrieved out of your database or other storage
-    | system used by the application. Typically, Eloquent is utilized.
+    | All authentication guards have a provider, which defines how the admins
+    | are actually retrieved from your database or other storage system used
+    | by the application. Typically, Eloquent is utilized.
     |
-    | If you have multiple user tables or models you may configure multiple
-    | providers to represent the model / table. These providers may then
-    | be assigned to any extra authentication guards you have defined.
+    | If you have multiple admin tables or models, you may configure multiple
+    | providers to represent the model/table.
     |
     | Supported: "database", "eloquent"
     |
     */
 
     'providers' => [
-        'users' => [
-            'driver' => 'eloquent',
-            'model' => App\Models\User::class,
-        ],
-
         'admins' => [ // Admin provider
             'driver' => 'eloquent',
-            'model' => App\Models\User::class, // Use the same User model for simplicity
+            'model' => App\Models\Admin::class, // Changed to Admin model
+        ],
+
+        'employees' => [ // Employee provider (if you have a separate Employee model)
+            'driver' => 'eloquent',
+            'model' => App\Models\Employee::class, // Adjusted for Employee model
         ],
     ],
 
@@ -91,25 +81,20 @@ return [
     | and the user provider that is invoked to actually retrieve users.
     |
     | The expiry time is the number of minutes that each reset token will be
-    | considered valid. This security feature keeps tokens short-lived so
-    | they have less time to be guessed. You may change this as needed.
-    |
-    | The throttle setting is the number of seconds a user must wait before
-    | generating more password reset tokens. This prevents the user from
-    | quickly generating a very large amount of password reset tokens.
+    | considered valid. You may change this as needed.
     |
     */
 
     'passwords' => [
-        'users' => [
-            'provider' => 'users',
-            'table' => 'password_reset_tokens',
+        'admins' => [ // Admin password reset configuration
+            'provider' => 'admins',
+            'table' => 'password_reset_tokens', // Same table for simplicity
             'expire' => 60,
             'throttle' => 60,
         ],
 
-        'admins' => [ // Admin password reset configuration
-            'provider' => 'admins',
+        'employees' => [ // Employee password reset configuration (if needed)
+            'provider' => 'employees',
             'table' => 'password_reset_tokens', // Same table for simplicity
             'expire' => 60,
             'throttle' => 60,
@@ -122,7 +107,7 @@ return [
     |--------------------------------------------------------------------------
     |
     | Here you may define the amount of seconds before a password confirmation
-    | window expires and users are asked to re-enter their password via the
+    | window expires and admins are asked to re-enter their password via the
     | confirmation screen. By default, the timeout lasts for three hours.
     |
     */
